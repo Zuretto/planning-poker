@@ -1,6 +1,6 @@
 <script lang="ts">
-    import {createTable} from '../../util/api-handler';
-    import {navigate} from "svelte-routing";
+    import { createTable } from '../../util/api-handler';
+    import { navigate } from "svelte-routing";
 
     let username = '';
     const createBoard = (): void => {

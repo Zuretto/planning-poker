@@ -1,7 +1,7 @@
-import {describe, it, expect, beforeEach, vi} from 'vitest';
-import type {Mock} from 'vitest';
-import {render, screen, fireEvent, cleanup} from '@testing-library/svelte';
-import type {RenderResult} from '@testing-library/svelte';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { Mock } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import type { RenderResult } from '@testing-library/svelte';
 import CreateTable from "./CreateTable.svelte";
 
 
