@@ -30,7 +30,7 @@ class GamesService(val uuidProvider: UUIDProvider) {
         if (!games.containsKey(id)) throw GameNotFoundException("Game with id: $id has been not found")
         val game = games.getValue(id)
 
-        game.mutex.lock {
+        game.mutex.withLock {
             if (game.players.any { it.name == playerName }) throw UsernameTakenException("Username: $playerName is already taken")
             game.players.add(Player(playerName))
         }

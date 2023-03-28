@@ -42,6 +42,7 @@ class GamesServiceTest {
 
         val exception = runCatching { service.joinGame(uuid, "username") }.exceptionOrNull()
 
+        assertNotNull(exception)
         assertTrue(exception is UsernameTakenException) { "When name is taken the thrown exception should be UsernameTakenException" }
     }
 
