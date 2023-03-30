@@ -8,5 +8,7 @@ services:
     depends_on:
       - backend
     build: ./frontend
+    environment:
+      - POKER_BACKEND_BASE_URL=backend
     ports:
       - 80:80
