@@ -8,7 +8,9 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import pl.poznan.put.tsd.planningpoker.backend.components.UUIDProvider
 import pl.poznan.put.tsd.planningpoker.backend.model.GameNotFoundException
+import pl.poznan.put.tsd.planningpoker.backend.model.PlayerDoesNotExistException
 import pl.poznan.put.tsd.planningpoker.backend.model.UsernameTakenException
+import pl.poznan.put.tsd.planningpoker.backend.resources.requests.Card
 import java.util.UUID
 
 @ExperimentalCoroutinesApi
@@ -40,10 +42,11 @@ class GamesServiceTest {
     fun `Given name existing in the game when joining the game then throw UsernameTakenException`() = runTest {
         val uuid = service.createGame("username")
 
-        val exception = runCatching { service.joinGame(uuid, "username") }.exceptionOrNull()
+        val result = runCatching { service.joinGame(uuid, "username") }
 
-        assertNotNull(exception)
-        assertTrue(exception is UsernameTakenException) { "When name is taken the thrown exception should be UsernameTakenException" }
+        result
+            .onSuccess { fail() }
+            .onFailure { assertEquals(UsernameTakenException::class, it::class) }
     }
 
     @Test
@@ -51,8 +54,44 @@ class GamesServiceTest {
         service.createGame("username")
         val uuid = UUID.fromString("a438511c-7009-41fd-bc37-beda2e32270b")
 
-        val exception = runCatching { service.joinGame(uuid, "username2") }.exceptionOrNull()
+        val result = runCatching { service.joinGame(uuid, "username2") }
 
-        assertTrue(exception is GameNotFoundException) { "When name is taken the thrown exception should be UsernameTakenException" }
+        result
+            .onSuccess { fail() }
+            .onFailure { assertEquals(GameNotFoundException::class, it::class) }
+    }
+
+
+    @Test
+    fun `Given card name when selecting the card then update player state`() = runTest {
+        val uuid = service.createGame("username")
+        assertEquals(Card.NONE, service.games[uuid]?.players?.get("username")?.selectedCard)
+
+        service.selectCard(uuid, "username", Card.EIGHT)
+
+        assertEquals(Card.EIGHT, service.games[uuid]?.players?.get("username")?.selectedCard)
+    }
+
+    @Test
+    fun `Given wrong game id when selecting the card then throw GameNotFoundException`() = runTest {
+        service.createGame("username")
+        val uuid = UUID.fromString("a438511c-7009-41fd-bc37-beda2e32270b")
+
+        val result = runCatching { service.selectCard(uuid, "username", Card.EIGHT) }
+
+        result
+            .onSuccess { fail() }
+            .onFailure { assertEquals(GameNotFoundException::class, it::class) }
+    }
+
+    @Test
+    fun `Given wrong username when selecting the card then throw PlayerDoesNotExistException`() = runTest {
+        val uuid = service.createGame("username")
+
+        val result = runCatching { service.selectCard(uuid, "username2", Card.EIGHT) }
+
+        result
+            .onSuccess { fail() }
+            .onFailure { assertEquals(PlayerDoesNotExistException::class, it::class) }
     }
 }

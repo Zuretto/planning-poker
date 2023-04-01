@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import pl.poznan.put.tsd.planningpoker.backend.model.GameNotFoundException
+import pl.poznan.put.tsd.planningpoker.backend.model.PlayerDoesNotExistException
 import pl.poznan.put.tsd.planningpoker.backend.model.UsernameTakenException
 
 @RestControllerAdvice
@@ -25,7 +26,7 @@ class CustomizedResponseEntityExceptionHandler : ResponseEntityExceptionHandler(
         gameNotFound: GameNotFoundException,
         request: WebRequest
     ): ResponseEntity<ExceptionResponse> {
-        val exceptionResponse = ExceptionResponse(gameNotFound.message.orEmpty())
+        val exceptionResponse = ExceptionResponse("Game with provided id does not exist")
         return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.NOT_FOUND)
     }
 
@@ -34,7 +35,16 @@ class CustomizedResponseEntityExceptionHandler : ResponseEntityExceptionHandler(
         usernameTaken: UsernameTakenException,
         request: WebRequest
     ): ResponseEntity<ExceptionResponse> {
-        val exceptionResponse = ExceptionResponse(usernameTaken.message.orEmpty())
+        val exceptionResponse = ExceptionResponse("Username has already been taken")
         return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.CONFLICT)
+    }
+
+    @ExceptionHandler(PlayerDoesNotExistException::class)
+    fun handlePlayerDoesNotExistException(
+        playerDoesNotExist: PlayerDoesNotExistException,
+        request: WebRequest
+    ): ResponseEntity<ExceptionResponse> {
+        val exceptionResponse = ExceptionResponse("Player with provided username does not exist")
+        return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.NOT_FOUND)
     }
 }
