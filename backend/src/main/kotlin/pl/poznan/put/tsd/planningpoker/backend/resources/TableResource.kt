@@ -37,7 +37,7 @@ class TableResource(private val games: GamesService) {
      * Responses:
      * 200 - OK
      * 404 - No such game
-     * 406 - Player does not exist
+     * 404 - Player does not exist
      */
     @PostMapping("select_card")
     suspend fun selectCard(@RequestBody request: CardRequest): ResponseEntity<Unit> {

@@ -26,7 +26,7 @@ class CustomizedResponseEntityExceptionHandler : ResponseEntityExceptionHandler(
         gameNotFound: GameNotFoundException,
         request: WebRequest
     ): ResponseEntity<ExceptionResponse> {
-        val exceptionResponse = ExceptionResponse(gameNotFound.message.orEmpty())
+        val exceptionResponse = ExceptionResponse("Game with provided id does not exist")
         return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.NOT_FOUND)
     }
 
@@ -35,16 +35,16 @@ class CustomizedResponseEntityExceptionHandler : ResponseEntityExceptionHandler(
         usernameTaken: UsernameTakenException,
         request: WebRequest
     ): ResponseEntity<ExceptionResponse> {
-        val exceptionResponse = ExceptionResponse(usernameTaken.message.orEmpty())
+        val exceptionResponse = ExceptionResponse("Username has already been taken")
         return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.CONFLICT)
     }
 
     @ExceptionHandler(PlayerDoesNotExistException::class)
-    fun handleUsernameTakenException(
+    fun handlePlayerDoesNotExistException(
         playerDoesNotExist: PlayerDoesNotExistException,
         request: WebRequest
     ): ResponseEntity<ExceptionResponse> {
-        val exceptionResponse = ExceptionResponse(playerDoesNotExist.message.orEmpty())
-        return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.NOT_ACCEPTABLE)
+        val exceptionResponse = ExceptionResponse("Player with provided username does not exist")
+        return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.NOT_FOUND)
     }
 }
