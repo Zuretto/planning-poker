@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import pl.poznan.put.tsd.planningpoker.backend.model.User
+import pl.poznan.put.tsd.planningpoker.backend.resources.requests.CardRequest
+import pl.poznan.put.tsd.planningpoker.backend.resources.requests.User
 import pl.poznan.put.tsd.planningpoker.backend.resources.responses.TableCreatedResponse
 import pl.poznan.put.tsd.planningpoker.backend.services.GamesService
 import java.util.UUID
@@ -29,6 +30,19 @@ class TableResource(private val games: GamesService) {
     @PatchMapping("table/{gameId}")
         suspend fun joinTable(@RequestBody user: User, @PathVariable gameId: UUID): ResponseEntity<Unit> {
         games.joinGame(gameId, user.username)
+        return ResponseEntity(Unit, HttpStatus.OK)
+    }
+
+    /**
+     * Responses:
+     * 200 - OK
+     * 404 - No such game
+     * 406 - Player does not exist
+     */
+    @PostMapping("select_card")
+    suspend fun selectCard(@RequestBody request: CardRequest): ResponseEntity<Unit> {
+        println(request)
+        games.selectCard(request.gameId, request.username, request.card)
         return ResponseEntity(Unit, HttpStatus.OK)
     }
 }
