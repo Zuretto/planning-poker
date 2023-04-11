@@ -2,14 +2,18 @@ package pl.poznan.put.tsd.planningpoker.backend.services
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import pl.poznan.put.tsd.planningpoker.backend.components.UUIDProvider
 import pl.poznan.put.tsd.planningpoker.backend.model.GameNotFoundException
 import pl.poznan.put.tsd.planningpoker.backend.model.PlayerDoesNotExistException
 import pl.poznan.put.tsd.planningpoker.backend.model.UsernameTakenException
+import pl.poznan.put.tsd.planningpoker.backend.resources.MessageHandler
 import pl.poznan.put.tsd.planningpoker.backend.resources.requests.Card
 import java.util.UUID
 
@@ -18,7 +22,8 @@ class GamesServiceTest {
     private val uuidProvider = mock(UUIDProvider::class.java).apply {
         `when`(generateUUID()).thenReturn(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
     }
-    private val service = GamesService(uuidProvider)
+    private val messageHandler = mock(MessageHandler::class.java) // TODO test properly...
+    private val service = GamesService(uuidProvider, messageHandler)
 
     @Test
     fun `Given creators name when creating a table then return uuid`() = runTest {
@@ -54,11 +59,7 @@ class GamesServiceTest {
         service.createGame("username")
         val uuid = UUID.fromString("a438511c-7009-41fd-bc37-beda2e32270b")
 
-        val result = runCatching { service.joinGame(uuid, "username2") }
-
-        result
-            .onSuccess { fail() }
-            .onFailure { assertEquals(GameNotFoundException::class, it::class) }
+        assertThrows<GameNotFoundException> { service.joinGame(uuid, "username2") }
     }
 
 
