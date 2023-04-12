@@ -40,7 +40,7 @@ class MessageHandler(val gamesService: GamesService) :
     private val mapper = jacksonObjectMapper()
 
     private sealed class ValidationError(val message: String) {
-        object InvalidParameters : ValidationError("Missing parameters ")
+        object InvalidParameters : ValidationError("Missing parameters")
         object InvalidUUID : ValidationError("Wrong game id")
         object InvalidUsername : ValidationError("Wrong username")
     }
