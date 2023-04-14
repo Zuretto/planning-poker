@@ -11,7 +11,7 @@
                 const [, ...tail] = state;
                 return tail;
             }),
-            5000
+            3000
         );
     };
 </script>
