@@ -2,7 +2,7 @@
     import { Router, Route } from 'svelte-routing'
     import MainView from './lib/components/MainView/MainView.svelte'
     import CreateTable from "./lib/components/CreateTable/CreateTable.svelte";
-    import TableDisplayer from "./lib/TableDisplayer/TableDisplayer.svelte";
+    import TableDisplayer from "./lib/components/TableDisplayer/TableDisplayer.svelte";
 </script>
 
 <main>
