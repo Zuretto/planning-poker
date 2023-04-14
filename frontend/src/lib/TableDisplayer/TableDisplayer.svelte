@@ -2,7 +2,7 @@
     import Card from "./Card.svelte";
 
     export let tableId;
-    let numbers = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, "∞", "?"]
+    const numbers = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, "∞", "?"];
 </script>
 <div class="wrapper">
     <div class="text-column">
