@@ -58,6 +58,19 @@ class GamesService(
         game.sendBroadcast()
     }
 
+
+    @Throws(GameNotFoundException::class)
+    suspend fun resetCards(id: UUID) {
+        val game = getGameByIdOrThrow(id)
+
+        game.mutex.withLock {
+            game.players.entries.forEach { (key, player) ->
+                game.players[key] = player.copy(selectedCard = Card.NONE)
+            }
+        }
+        game.sendBroadcast()
+    }
+
     @Throws(GameNotFoundException::class)
     private fun getGameByIdOrThrow(id: UUID) =
         _games[id] ?: throw GameNotFoundException("Game with id: $id has been not found")

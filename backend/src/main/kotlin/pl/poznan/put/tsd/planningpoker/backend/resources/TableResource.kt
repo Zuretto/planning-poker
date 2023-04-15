@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pl.poznan.put.tsd.planningpoker.backend.resources.requests.CardRequest
+import pl.poznan.put.tsd.planningpoker.backend.resources.requests.GameId
 import pl.poznan.put.tsd.planningpoker.backend.resources.requests.User
 import pl.poznan.put.tsd.planningpoker.backend.resources.responses.TableCreatedResponse
 import pl.poznan.put.tsd.planningpoker.backend.services.GamesService
@@ -41,8 +42,18 @@ class TableResource(private val games: GamesService) {
      */
     @PostMapping("select_card")
     suspend fun selectCard(@RequestBody request: CardRequest): ResponseEntity<Unit> {
-        println(request)
         games.selectCard(request.gameId, request.username, request.card)
+        return ResponseEntity(Unit, HttpStatus.OK)
+    }
+
+    /**
+     * Responses:
+     * 200 - OK
+     * 404 - No such game
+     */
+    @PostMapping("reset_cards")
+    suspend fun resetCards(@RequestBody gameId: GameId): ResponseEntity<Unit> {
+        games.resetCards(gameId.gameId)
         return ResponseEntity(Unit, HttpStatus.OK)
     }
 }
