@@ -12,6 +12,7 @@
      * of JS in `.svelte` files.
      */
     "allowJs": true,
+    "types": ["vite/client"],
     "checkJs": true,
     "isolatedModules": true
   },

@@ -1,7 +1,8 @@
 import type { TableResponse } from './api-handler.models';
 import { usernameStore } from "./store";
 
-const baseUrl = import.meta.env.VITE_BASE_URL as string;
+const baseUrl = import.meta.env.VITE_BASE_URL;
+const websocketBaseUrl = import.meta.env.VITE_WEBSOCKET_BASE_URL;
 
 export const createTable = (nickname: string): Promise<TableResponse> => {
     return fetch(`${baseUrl}/poker_api/v1/table`, {
