@@ -33,6 +33,9 @@
         <button on:click={joinBoard}>Enter Username</button>
     </div>
 {:else}
+
+
+
     <div class="wrapper">
         <div class="text-column">
             Your table ID is {tableId}.
