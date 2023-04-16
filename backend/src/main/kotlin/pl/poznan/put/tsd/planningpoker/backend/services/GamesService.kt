@@ -42,6 +42,7 @@ class GamesService(
         game.mutex.withLock {
             if (username in game.players) throw UsernameTakenException("Username: $username is already taken")
             game.players[username] = Player(username)
+            game.areCardsVisible = false
         }
         game.sendBroadcast()
     }
