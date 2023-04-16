@@ -12,25 +12,24 @@
     export let tableId: string;
     export let selectedCard: Card = Card.NONE;
 
-    let toastComponent;
+    let toast: (message) => void;
     let usernameInput: string;
     let submitted: boolean = false;
     let disabled: boolean = true;
-
 
     const joinBoard = () => {
         if (!usernameInput || !usernameInput.trim().length) {
             return;
         }
         joinTable(usernameInput, tableId)
-            .catch(errorMessage => toastComponent.toast(errorMessage));
+            .catch(errorMessage => toast(errorMessage));
     };
 
     const submitCard = () => {
         selectCard($usernameStore, tableId, selectedCard).then(() => {
             disabled = true;
             submitted = true;
-        }).catch(errorMessage => toastComponent.toast(errorMessage));
+        }).catch(errorMessage => toast(errorMessage));
     }
 
     const onClickCard = (card: Card) => {
@@ -42,7 +41,7 @@
 
 </script>
 
-<ErrorToast bind:this="{toastComponent}"></ErrorToast>
+<ErrorToast bind:toast="{toast}"/>
 {#if $usernameStore === null}
     <div class="text-column">
         <h1> Welcome to the board! </h1>
@@ -54,8 +53,6 @@
         <button on:click={joinBoard}>Enter Username</button>
     </div>
 {:else}
-
-
     <div class="wrapper">
         <div class="text-column">
             <TableView username="{$usernameStore}"
