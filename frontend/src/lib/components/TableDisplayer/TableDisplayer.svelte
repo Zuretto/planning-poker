@@ -2,9 +2,12 @@
     import { usernameStore } from "../../util/store";
     import { joinTable } from "../../util/api-handler";
     import ErrorToast from "../Toast/ErrorToast.svelte";
-    import Card from "./Card.svelte";
+    import { Card } from "../../util/enums.js";
+    import TableView from "../TableView/TableView.svelte";
+    import SelectCard from "./SelectCard.svelte";
 
-    const numbers = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, "∞", "?"];
+    const cards: Card[] = (Object.values(Card) as Card[])
+        .filter(card => card !== Card.NONE);
 
     export let tableId: string;
 
@@ -35,15 +38,14 @@
 {:else}
 
 
-
     <div class="wrapper">
         <div class="text-column">
-            Your table ID is {tableId}.
+            <TableView username="{$usernameStore}"
+                       tableId="{tableId}"/>
         </div>
-
         <div class="cards">
-            {#each numbers as num}
-                <Card number={num}/>
+            {#each cards as card}
+                <SelectCard card={card}/>
             {/each}
         </div>
     </div>

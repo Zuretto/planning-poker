@@ -1,8 +1,11 @@
-<script>
-    export let number
+<script lang="ts">
+    import type { Card } from "../../util/enums.js";
+    import { cardEnumToDisplayText } from "../../util/enums.js";
+
+    export let card: Card;
 </script>
 
-<button class="card">{number}</button>
+<button class="card">{cardEnumToDisplayText[card]}</button>
 
 <style>
     .card {
