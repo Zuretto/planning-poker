@@ -24,7 +24,6 @@
         {player.name}
     </span>
 </div>
-<!--TODO: card that is grey when -->
 
 <style lang="scss">
 
@@ -64,7 +63,6 @@
 
     }
   }
-
 
 </style>
 
