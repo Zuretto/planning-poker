@@ -54,6 +54,7 @@ class GamesService(
             val player = game.players[username]
                 ?: throw PlayerDoesNotExistException("Player with username: $username does not exist")
             game.players[username] = player.copy(selectedCard = card)
+            game.areCardsVisible = game.players.all { it.value.selectedCard != Card.NONE }
         }
         game.sendBroadcast()
     }

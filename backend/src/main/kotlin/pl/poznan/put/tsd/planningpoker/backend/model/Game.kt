@@ -8,7 +8,7 @@ import java.util.UUID
 data class Game(
     val id: UUID,
     val players: MutableMap<String, Player> = mutableMapOf(),
-    val areCardsVisible: Boolean = false,
+    var areCardsVisible: Boolean = false,
 ) {
     val mutex: Mutex = Mutex()
 }
