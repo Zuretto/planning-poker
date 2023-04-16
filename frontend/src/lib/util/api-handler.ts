@@ -47,7 +47,7 @@ export const joinTable = (nickname: string, gameId: string): Promise<void> => {
  *
  * @param nickname - nickname of the player
  * @param gameId - id of the game
- * @param onCleanClose - callback to clean close (e.g. game has finished, tableId is wrong)
+ * @param onCleanClose - callback to clean close (e.g. game has finished, tableId is wrong). If connection was closed by user, callback isn't called.
  * @param onErrorClose - callback to an error close (e.g. connection couldn't be established)
  * @param onValidationError - callback to a validation error message
  * @param onMessage - callback to received message
@@ -66,15 +66,17 @@ export const establishWebsocketConnection = (
     let wasClosedByClient = false;
 
     const websocketUrl = new URL(websocketBaseUrl)
+    websocketUrl.pathname = '/poker_api/v1/game'
     websocketUrl.searchParams.append('game_id', gameId);
     websocketUrl.searchParams.append('username', nickname);
     const socket = new WebSocket(websocketUrl);
 
-    socket.onmessage = (messageEvent: MessageEvent<GameResponse | ValidationError>) => {
-        if ('players' in messageEvent.data) {
-            onMessage(messageEvent.data);
+    socket.onmessage = (messageEvent: MessageEvent<string>) => {
+        const data: GameResponse | ValidationError = JSON.parse(messageEvent.data);
+        if (data.type === 'Game') {
+            onMessage(data);
         } else {
-            onValidationError(messageEvent.data);
+            onValidationError(data);
             // connection will be closed by the server anyway, no need to close it now.
         }
     }
