@@ -42,6 +42,7 @@ class GamesService(
         game.mutex.withLock {
             if (username in game.players) throw UsernameTakenException("Username: $username is already taken")
             game.players[username] = Player(username)
+            game.areCardsVisible = false
         }
         game.sendBroadcast()
     }
@@ -54,6 +55,7 @@ class GamesService(
             val player = game.players[username]
                 ?: throw PlayerDoesNotExistException("Player with username: $username does not exist")
             game.players[username] = player.copy(selectedCard = card)
+            game.areCardsVisible = game.players.all { it.value.selectedCard != Card.NONE }
         }
         game.sendBroadcast()
     }

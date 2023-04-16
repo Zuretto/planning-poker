@@ -118,5 +118,6 @@ class MessageHandler(val gamesService: GamesService) :
 class WSConfig(val messageHandler: MessageHandler) : WebSocketConfigurer {
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
         registry.addHandler(messageHandler, "/game")
+            .setAllowedOrigins("*")
     }
 }

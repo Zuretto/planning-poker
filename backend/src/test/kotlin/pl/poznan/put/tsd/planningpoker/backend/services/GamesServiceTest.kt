@@ -2,11 +2,9 @@ package pl.poznan.put.tsd.planningpoker.backend.services
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.fail
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import pl.poznan.put.tsd.planningpoker.backend.components.UUIDProvider
@@ -94,5 +92,26 @@ class GamesServiceTest {
         result
             .onSuccess { fail() }
             .onFailure { assertEquals(PlayerDoesNotExistException::class, it::class) }
+    }
+
+    @Test
+    fun `Given 2 users in a game when only one selects their card then should not set Game#areCardsVisible to true`() = runTest {
+        val uuid = service.createGame("username")
+        service.joinGame(uuid, "username2")
+
+        service.selectCard(uuid, "username", Card.EIGHT)
+
+        assertFalse(service.games[uuid]!!.areCardsVisible)
+    }
+
+    @Test
+    fun `Given 2 users in a game when both select their cards then should set Game#areCardsVisible to true`() = runTest {
+        val uuid = service.createGame("username")
+        service.joinGame(uuid, "username2")
+
+        service.selectCard(uuid, "username", Card.EIGHT)
+        service.selectCard(uuid, "username2", Card.EIGHT)
+
+        assertTrue(service.games[uuid]!!.areCardsVisible)
     }
 }
