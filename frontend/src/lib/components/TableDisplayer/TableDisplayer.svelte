@@ -33,8 +33,8 @@
         }).catch(errorMessage => toastComponent.toast(errorMessage));
     }
 
-    function onClickCard(card) {
-        if (submitted == false){
+    function onClickCard(card: Card) {
+        if (!submitted){
             selectedCard = card;
             disabled = false;
         }
