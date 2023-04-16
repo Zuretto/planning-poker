@@ -33,7 +33,7 @@
         }).catch(errorMessage => toastComponent.toast(errorMessage));
     }
 
-    function onClickCard(card: Card) {
+    const onClickCard = (card: Card) => {
         if (!submitted){
             selectedCard = card;
             disabled = false;
