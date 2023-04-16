@@ -1,6 +1,6 @@
 <script lang="ts">
     import { usernameStore } from "../../util/store";
-    import { joinTable } from "../../util/api-handler";
+    import { joinTable, selectCard } from "../../util/api-handler";
     import ErrorToast from "../Toast/ErrorToast.svelte";
     import { Card } from "../../util/enums.js";
     import TableView from "../TableView/TableView.svelte";
@@ -10,9 +10,13 @@
         .filter(card => card !== Card.NONE);
 
     export let tableId: string;
+    export let selectedCard: Card = Card.NONE;
 
     let toastComponent;
     let usernameInput: string;
+    let submitted: boolean = false;
+    let disabled: boolean = true;
+
 
     const joinBoard = () => {
         if (!usernameInput || !usernameInput.trim().length) {
@@ -21,6 +25,20 @@
         joinTable(usernameInput, tableId)
             .catch(errorMessage => toastComponent.toast(errorMessage));
     };
+
+    const submitCard = () => {
+        selectCard($usernameStore, tableId, selectedCard).then(() => {
+            disabled = true;
+            submitted = true;
+        }).catch(errorMessage => toastComponent.toast(errorMessage));
+    }
+
+    const onClickCard = (card: Card) => {
+        if (!submitted){
+            selectedCard = card;
+            disabled = false;
+        }
+    }
 
 </script>
 
@@ -43,9 +61,10 @@
             <TableView username="{$usernameStore}"
                        tableId="{tableId}"/>
         </div>
+        <button class="submit" on:click={submitCard} {disabled}>Submit</button>
         <div class="cards">
             {#each cards as card}
-                <SelectCard card={card}/>
+                <SelectCard on:click={() => onClickCard(card)} card={card} bind:selectedCard={selectedCard}/>
             {/each}
         </div>
     </div>
@@ -68,5 +87,33 @@
         justify-content: center;
         flex-shrink: 0;
         gap: 1rem;
+    }
+
+    .submit {
+        align-self: center;
+        margin-bottom: 2rem;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        padding: 0.6em 1.2em;
+        font-size: 1em;
+        font-weight: 500;
+        font-family: inherit;
+        color: white;
+        background-color: #646cff;
+        cursor: pointer;
+        transition: border-color 0.25s, background-color 0.25s;
+        width: 150px;
+    }
+
+    .submit:hover {
+        border-color: #646cff;
+    }
+
+    .submit:focus,
+    .submit:focus-visible {
+        outline: 4px auto -webkit-focus-ring-color;
+    }
+    .submit:disabled {
+        background-color: #cccccc
     }
 </style>

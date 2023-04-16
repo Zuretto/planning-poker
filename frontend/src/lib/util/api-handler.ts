@@ -1,5 +1,6 @@
 import type { GameResponse, TableResponse, ValidationError } from './api-handler.models';
 import { usernameStore } from "./store";
+import type { Card } from "./enums";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 const websocketBaseUrl = import.meta.env.VITE_WEBSOCKET_BASE_URL;
@@ -40,6 +41,28 @@ export const joinTable = (nickname: string, gameId: string): Promise<void> => {
         })
         .then(() => usernameStore.set(nickname));
 }
+
+export const selectCard = (nickname: string, gameId: string, card: Card): Promise<void> => {
+    return fetch(`${baseUrl}/poker_api/v1/select_card`, {
+        method: 'POST',
+        body: JSON.stringify({
+            username: nickname,
+            game_id: gameId,
+            card: card
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        }
+    })
+        .then(async response => {
+            if (response.status === 404) {
+                const gottenResponse = await response.json();
+                throw gottenResponse.message;
+            }
+        })
+}
+
 
 /**
  *
