@@ -4,7 +4,7 @@
 
     const notifications = writable<string[]>([]);
 
-    export const toast = (message: string) => {
+    export const toast = (message: string): void => {
         notifications.update((state) => [message, ...state]);
         setTimeout(
             () => notifications.update((state) => {

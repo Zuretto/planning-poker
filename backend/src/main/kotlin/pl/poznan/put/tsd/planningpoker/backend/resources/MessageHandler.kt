@@ -19,6 +19,8 @@ import pl.poznan.put.tsd.planningpoker.backend.resources.responses.GameResponse.
 import pl.poznan.put.tsd.planningpoker.backend.services.GamesService
 import java.io.IOException
 import java.net.URI
+import java.net.URLDecoder
+import java.nio.charset.Charset
 import java.util.UUID
 
 // https://codemwnci.medium.com/kotlin-springboot-and-websockets-276029b22482
@@ -31,7 +33,7 @@ enum class MessageType {
 
 @Component
 class MessageHandler(val gamesService: GamesService) :
-    TextWebSocketHandler() {
+        TextWebSocketHandler() {
 
     private class Message(val type: MessageType, val data: Any)
 
@@ -85,7 +87,7 @@ class MessageHandler(val gamesService: GamesService) :
             .associate { it[0] to it[1] }
         ensureNotNull(parameters) { ValidationError.InvalidParameters }
         ensure(requiredParameters.all { parameters.containsKey(it) }) { ValidationError.InvalidParameters }
-        parameters
+        parameters.toMutableMap().apply { this["username"] = URLDecoder.decode(this["username"], Charset.defaultCharset()) }
     }
 
     private fun String.convertToUUID(): Either<ValidationError, UUID> = Either

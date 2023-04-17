@@ -1,11 +1,12 @@
 <script lang="ts">
-    import { establishWebsocketConnection } from "../../util/api-handler";
+    import { establishWebsocketConnection, resetCard } from "../../util/api-handler";
     import type { PlayerResponse } from "../../util/api-handler.models";
     import { onDestroy } from "svelte";
     import ReadOnlyCard from "./ReadOnlyCard.svelte";
 
-    export let username;
-    export let tableId;
+    export let username: string;
+    export let tableId: string;
+    export let resetNotifier: () => void;
 
     let areCardsVisible = false;
     let players: PlayerResponse[] = [];
@@ -20,18 +21,32 @@
         (validationError) => {/* TODO toast message */
         },
         (message) => {
+            if (areCardsVisible && !message.data.areCardsVisible) {
+                // reset has occurred
+                resetNotifier();
+            }
             players = message.data.players;
             areCardsVisible = message.data.areCardsVisible;
         }
     );
 
+    const handleResetButton = () => {
+        resetCard(tableId)
+            .catch(error => {/*TODO error handling*/});
+    };
+
     onDestroy(() => closeWebsocket());
 </script>
 
 <div class="circle-container">
+    {#if areCardsVisible}
+        <button on:click={handleResetButton}
+                class="reset-button"> reset
+        </button>
+    {/if}
     <ul>
         {#each players as player, i}
-            <li style="{`transform: translate(-50%, -50%) rotate(${(i * 360) / players.length}deg) translateY(-12rem) rotate(-${(i * 360) / players.length}deg)`}">
+            <li style="{`transform: translate(-50%, -50%) rotate(${(i * 360) / players.length}deg) translateY(-8rem) rotate(-${(i * 360) / players.length}deg)`}">
                 <ReadOnlyCard isSelectionVisible="{areCardsVisible}"
                               player="{player}"/>
             </li>
@@ -44,8 +59,8 @@
         position: relative;
         display: flex;
         place-items: center;
-        width: 24rem;
-        height: 24rem;
+        width: 20rem;
+        height: 20rem;
         margin: 15px;
         justify-content: center;
         text-align: center;
@@ -73,5 +88,19 @@
         transition: transform .5s cubic-bezier(0.5, 0, 0.35, 1);
         transform: translate(-50%, -50%);
         transform-origin: center center;
+    }
+
+    .reset-button {
+        align-self: center;
+        margin-bottom: 2rem;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        padding: 0.3rem 1rem;
+        font-size: 1em;
+        font-weight: 450;
+        font-family: inherit;
+        color: white;
+        background-color: #646cff;
+        cursor: pointer;
     }
 </style>
