@@ -27,7 +27,7 @@
 
 <style lang="scss">
 
-  $cardWidth: 5rem;
+  $cardWidth: 4rem;
   $cardHeight: $cardWidth * 1.5;
   $iconSide: $cardWidth * 0.8;
   $iconPaddingTop: $cardWidth * 0.1;

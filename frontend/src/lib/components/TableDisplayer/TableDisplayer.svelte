@@ -6,18 +6,20 @@
     import TableView from "../TableView/TableView.svelte";
     import SelectCard from "./SelectCard.svelte";
 
+    export let tableId: string;
+
     const cards: Card[] = (Object.values(Card) as Card[])
         .filter(card => card !== Card.NONE);
 
-    export let tableId: string;
-    export let selectedCard: Card = Card.NONE;
 
     let toast: (message) => void;
     let usernameInput: string;
+
+    let selectedCard: Card = Card.NONE;
     let submitted: boolean = false;
     let disabled: boolean = true;
 
-    const joinBoard = () => {
+    const joinBoard = (): void => {
         if (!usernameInput || !usernameInput.trim().length) {
             return;
         }
@@ -25,19 +27,25 @@
             .catch(errorMessage => toast(errorMessage));
     };
 
-    const submitCard = () => {
+    const submitCard = (): void => {
         selectCard($usernameStore, tableId, selectedCard).then(() => {
             disabled = true;
             submitted = true;
         }).catch(errorMessage => toast(errorMessage));
-    }
+    };
 
-    const onClickCard = (card: Card) => {
-        if (!submitted){
+    const onClickCard = (card: Card): void => {
+        if (!submitted) {
             selectedCard = card;
             disabled = false;
         }
-    }
+    };
+
+    const handleReset = (): void => {
+        selectedCard = Card.NONE;
+        submitted = false;
+        disabled = true;
+    };
 
 </script>
 
@@ -56,7 +64,8 @@
     <div class="wrapper">
         <div class="text-column">
             <TableView username="{$usernameStore}"
-                       tableId="{tableId}"/>
+                       tableId="{tableId}"
+                       resetNotifier="{handleReset}"/>
         </div>
         <button class="submit" on:click={submitCard} {disabled}>Submit</button>
         <div class="cards">
@@ -110,6 +119,7 @@
     .submit:focus-visible {
         outline: 4px auto -webkit-focus-ring-color;
     }
+
     .submit:disabled {
         background-color: #cccccc
     }

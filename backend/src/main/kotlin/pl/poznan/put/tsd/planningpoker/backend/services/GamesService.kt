@@ -69,6 +69,7 @@ class GamesService(
             game.players.entries.forEach { (key, player) ->
                 game.players[key] = player.copy(selectedCard = Card.NONE)
             }
+            game.areCardsVisible = false
         }
         game.sendBroadcast()
     }

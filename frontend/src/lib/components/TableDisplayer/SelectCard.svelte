@@ -15,7 +15,7 @@
 
 <style>
     .not-selected {
-        padding: 4rem 0;
+        padding: 3rem 0;
         border-radius: 8px;
         border: 1px solid transparent;
         font-size: 2rem;
@@ -29,7 +29,7 @@
     .not-selected:hover,
     .selected
     {
-        padding: 4rem 0;
+        padding: 3rem 0;
         border-radius: 8px;
         border: 1px solid transparent;
         font-size: 2rem;
