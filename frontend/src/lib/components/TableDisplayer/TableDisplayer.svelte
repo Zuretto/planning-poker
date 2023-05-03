@@ -119,26 +119,4 @@
     .submit:disabled {
         background-color: #cccccc
     }
-
-    .enter-board {
-        border-radius: 20px;
-        border: 1px solid transparent;
-        padding: 0.6em 1.2em;
-        font-size: 1em;
-        font-weight: 500;
-        font-family: inherit;
-        cursor: pointer;
-        transition: border-color 0.25s;
-        width: 250px;
-        align-self: center;
-    }
-
-    .enter-board:hover {
-        border-color: #646cff;
-    }
-
-    .enter-board:focus,
-    .enter-board:focus-visible {
-        outline: 4px auto -webkit-focus-ring-color;
-    }
 </style>
