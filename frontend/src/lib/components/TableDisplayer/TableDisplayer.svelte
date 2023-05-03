@@ -54,8 +54,11 @@
     <div class="text-column">
         <h1> Welcome to the board! </h1>
         <h3> Please enter your name below to proceed: </h3>
-        <input name="username" type="text" id="nickname-input" placeholder="Enter your nickname" bind:value={usernameInput}>
-        <button class="enter-board" on:click={joinBoard}>Enter board</button>
+        <form on:submit|preventDefault={joinBoard}>
+            <input name="username" type="text" id="nickname-input" placeholder="Enter your nickname"
+                   bind:value={usernameInput}><br>
+            <input type="submit" value="Enter board">
+        </form>
     </div>
 {:else}
     <div class="wrapper">

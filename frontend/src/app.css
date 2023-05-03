@@ -60,7 +60,7 @@ a:hover {
     margin: 0 auto;
 }
 
-input {
+input[type=text] {
     width:250px;
     padding:10px;
     box-sizing: border-box;
@@ -74,8 +74,30 @@ input {
     transition: outline-color 0.25s;
 }
 
-input:focus {
+input[type=text]:focus {
     border: 1px solid transparent;
     outline: 2px solid #646cff;
     transition: outline-color 0.25s;
+}
+
+input[type=submit] {
+    border-radius: 20px;
+    border: 1px solid transparent;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.25s;
+    width: 250px;
+    align-self: center;
+}
+
+input[type=submit]:hover {
+    border-color: #646cff;
+}
+
+input[type=submit]:focus,
+input[type=submit]:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
 }

@@ -7,8 +7,8 @@
     import { navigate } from "svelte-routing";
 
     const addTableButtonHandler = (): void => {
-        navigate("add-table")
-    }
+        navigate("add-table");
+    };
 </script>
 
 <section>
