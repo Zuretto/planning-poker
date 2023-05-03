@@ -16,16 +16,15 @@
 </script>
 
 <div class="text-column">
-    <label>
-        Your nickname
-        <input name="username" type="text" id="nickname-input" bind:value={username}>
-    </label>
+    <h1> Create a new board </h1>
+    <h3> Please enter your name below to proceed: </h3>
+    <input name="username" type="text" id="nickname-input" placeholder="Enter your nickname" bind:value={username}>
     <button on:click={createBoard}>Create board</button>
 </div>
 
 <style>
     button {
-        border-radius: 8px;
+        border-radius: 20px;
         border: 1px solid transparent;
         padding: 0.6em 1.2em;
         font-size: 1em;
@@ -33,6 +32,8 @@
         font-family: inherit;
         cursor: pointer;
         transition: border-color 0.25s;
+        width: 250px;
+        align-self: center;
     }
 
     button:hover {

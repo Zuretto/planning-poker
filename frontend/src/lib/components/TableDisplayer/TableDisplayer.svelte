@@ -54,11 +54,8 @@
     <div class="text-column">
         <h1> Welcome to the board! </h1>
         <h3> Please enter your name below to proceed: </h3>
-        <label>
-            Your nickname
-            <input name="username" type="text" id="nickname-input" bind:value={usernameInput}>
-        </label>
-        <button on:click={joinBoard}>Enter Username</button>
+        <input name="username" type="text" id="nickname-input" placeholder="Enter your nickname" bind:value={usernameInput}>
+        <button class="enter-board" on:click={joinBoard}>Enter board</button>
     </div>
 {:else}
     <div class="wrapper">
@@ -98,7 +95,7 @@
     .submit {
         align-self: center;
         margin-bottom: 2rem;
-        border-radius: 8px;
+        border-radius: 20px;
         border: 1px solid transparent;
         padding: 0.6em 1.2em;
         font-size: 1em;
@@ -111,10 +108,6 @@
         width: 150px;
     }
 
-    .submit:hover {
-        border-color: #646cff;
-    }
-
     .submit:focus,
     .submit:focus-visible {
         outline: 4px auto -webkit-focus-ring-color;
@@ -122,5 +115,27 @@
 
     .submit:disabled {
         background-color: #cccccc
+    }
+
+    .enter-board {
+        border-radius: 20px;
+        border: 1px solid transparent;
+        padding: 0.6em 1.2em;
+        font-size: 1em;
+        font-weight: 500;
+        font-family: inherit;
+        cursor: pointer;
+        transition: border-color 0.25s;
+        width: 250px;
+        align-self: center;
+    }
+
+    .enter-board:hover {
+        border-color: #646cff;
+    }
+
+    .enter-board:focus,
+    .enter-board:focus-visible {
+        outline: 4px auto -webkit-focus-ring-color;
     }
 </style>

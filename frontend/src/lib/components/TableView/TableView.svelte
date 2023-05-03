@@ -41,7 +41,7 @@
 <div class="circle-container">
     {#if areCardsVisible}
         <button on:click={handleResetButton}
-                class="reset-button"> reset
+                class="reset-button"> Reset
         </button>
     {/if}
     <ul>
@@ -93,7 +93,7 @@
     .reset-button {
         align-self: center;
         margin-bottom: 2rem;
-        border-radius: 8px;
+        border-radius: 20px;
         border: 1px solid transparent;
         padding: 0.3rem 1rem;
         font-size: 1em;
