@@ -16,31 +16,11 @@
 </script>
 
 <div class="text-column">
-    <label>
-        Your nickname
-        <input name="username" type="text" id="nickname-input" bind:value={username}>
-    </label>
-    <button on:click={createBoard}>Create board</button>
+    <h1> Create a new board </h1>
+    <h3> Please enter your name below to proceed: </h3>
+    <form on:submit|preventDefault={createBoard}>
+        <input name="username" type="text" id="nickname-input" placeholder="Enter your nickname"
+               bind:value={username}><br>
+        <input type="submit" value="Create board">
+    </form>
 </div>
-
-<style>
-    button {
-        border-radius: 8px;
-        border: 1px solid transparent;
-        padding: 0.6em 1.2em;
-        font-size: 1em;
-        font-weight: 500;
-        font-family: inherit;
-        cursor: pointer;
-        transition: border-color 0.25s;
-    }
-
-    button:hover {
-        border-color: #646cff;
-    }
-
-    button:focus,
-    button:focus-visible {
-        outline: 4px auto -webkit-focus-ring-color;
-    }
-</style>

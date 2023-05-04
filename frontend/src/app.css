@@ -59,3 +59,45 @@ a:hover {
     justify-content: center;
     margin: 0 auto;
 }
+
+input[type=text] {
+    width:250px;
+    padding:10px;
+    box-sizing: border-box;
+    align-self: center;
+    margin: 20px 0;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.2);
+    font-family: inherit;
+    font-size: inherit;
+    outline-color: transparent;
+    transition: outline-color 0.25s;
+}
+
+input[type=text]:focus {
+    border: 1px solid transparent;
+    outline: 2px solid #646cff;
+    transition: outline-color 0.25s;
+}
+
+input[type=submit] {
+    border-radius: 20px;
+    border: 1px solid transparent;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.25s;
+    width: 250px;
+    align-self: center;
+}
+
+input[type=submit]:hover {
+    border-color: #646cff;
+}
+
+input[type=submit]:focus,
+input[type=submit]:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+}
