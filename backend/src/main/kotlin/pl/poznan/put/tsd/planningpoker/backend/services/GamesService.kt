@@ -4,11 +4,7 @@ import kotlinx.coroutines.sync.withLock
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import pl.poznan.put.tsd.planningpoker.backend.components.UUIDProvider
-import pl.poznan.put.tsd.planningpoker.backend.model.Game
-import pl.poznan.put.tsd.planningpoker.backend.model.GameNotFoundException
-import pl.poznan.put.tsd.planningpoker.backend.model.Player
-import pl.poznan.put.tsd.planningpoker.backend.model.PlayerDoesNotExistException
-import pl.poznan.put.tsd.planningpoker.backend.model.UsernameTakenException
+import pl.poznan.put.tsd.planningpoker.backend.model.*
 import pl.poznan.put.tsd.planningpoker.backend.resources.MessageHandler
 import pl.poznan.put.tsd.planningpoker.backend.resources.MessageType
 import pl.poznan.put.tsd.planningpoker.backend.resources.requests.Card
@@ -31,7 +27,7 @@ class GamesService(
      */
     suspend fun createGame(username: String): UUID {
         val id = uuidProvider.generateUUID()
-        _games[id] = Game(id = id, players = mutableMapOf(username to Player(username)))
+        _games[id] = Game(id = id, players = mutableMapOf(username to Player(username)), userStories = listOf())
         return id
     }
 
@@ -75,6 +71,16 @@ class GamesService(
     }
 
     @Throws(GameNotFoundException::class)
+    suspend fun updateUserStories(id: UUID, userStories: List<UserStory>) {
+        val game = getGameByIdOrThrow(id)
+
+        game.mutex.withLock {
+            game.userStories = userStories
+        }
+        game.sendBroadcast()
+    }
+
+    @Throws(GameNotFoundException::class)
     private fun getGameByIdOrThrow(id: UUID) =
         _games[id] ?: throw GameNotFoundException("Game with id: $id has been not found")
 
@@ -90,4 +96,6 @@ class GamesService(
             e.printStackTrace()
         }
     }
+
+
 }
