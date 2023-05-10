@@ -81,6 +81,9 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        width: fit-content;
+        margin: auto;
+        align-items: stretch;
     }
 
     .text-column {
@@ -93,6 +96,8 @@
         justify-content: center;
         flex-shrink: 0;
         gap: 1rem;
+        align-self: stretch;
+        width: min(calc(90rem), 100vw - 64px);
     }
 
     .submit {

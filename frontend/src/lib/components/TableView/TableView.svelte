@@ -32,7 +32,8 @@
 
     const handleResetButton = () => {
         resetCard(tableId)
-            .catch(error => {/*TODO error handling*/});
+            .catch(error => {/*TODO error handling*/
+            });
     };
 
     onDestroy(() => closeWebsocket());
@@ -44,30 +45,40 @@
                 class="reset-button"> Reset
         </button>
     {/if}
-    <ul>
-        {#each players as player, i}
-            <li style="{`transform: translate(-50%, -50%) rotate(${(i * 360) / players.length}deg) translateY(-8rem) rotate(-${(i * 360) / players.length}deg)`}">
-                <ReadOnlyCard isSelectionVisible="{areCardsVisible}"
-                              player="{player}"/>
-            </li>
-        {/each}
-    </ul>
+
+    <div class="user-story-view">
+        TODO user story CRUD
+    </div>
+
+    <div class="cards-list">
+        <ul>
+            {#each players as player, i}
+                <li style="{`transform: translate(-50%, -50%) rotate(${(i * 360) / players.length}deg) translateY(-8rem) rotate(-${(i * 360) / players.length}deg)`}">
+                    <ReadOnlyCard isSelectionVisible="{areCardsVisible}"
+                                  player="{player}"/>
+                </li>
+            {/each}
+        </ul>
+    </div>
 </div>
 
 <style>
     .circle-container {
-        position: relative;
         display: flex;
-        place-items: center;
-        width: 20rem;
-        height: 20rem;
-        margin: 15px;
-        justify-content: center;
-        text-align: center;
-        border-radius: 50%;
+        flex-direction: row;
+        width: 100%;
+    }
+
+    .user-story-view {
+        flex: 5 1 0;
+    }
+
+    .cards-list {
+        flex: 1 1 0 ;
     }
 
     ul {
+        /* TODO put the cards in rows of the cards-list column. */
         list-style-type: none;
         margin: 0;
         padding: 0;

@@ -23,7 +23,7 @@
         font-family: inherit;
         cursor: pointer;
         transition: transform 0.25s, border-color 0.25s;
-        flex: 0 0 100px;
+        flex: 0 0 6.25rem;
         text-align: center;
     }
 
