@@ -83,7 +83,7 @@ class GamesService(
         game.sendBroadcast()
     }
 
-    @Throws(GameNotFoundException::class)
+    @Throws(GameNotFoundException::class, InvalidFileException::class)
     suspend fun importUserStoriesFromFile(id: UUID, csvFile: MultipartFile) {
         val game = getGameByIdOrThrow(id)
 
@@ -109,6 +109,4 @@ class GamesService(
             e.printStackTrace()
         }
     }
-
-
 }

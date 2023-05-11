@@ -69,6 +69,12 @@ class TableResource(private val gamesService: GamesService) {
         return ResponseEntity(Unit, HttpStatus.OK)
     }
 
+    /**
+     * Responses:
+     * 200 - OK
+     * 400 - Invalid file
+     * 404 - No such game
+     */
     @PostMapping("user_stories", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     suspend fun importUserStoriesFromFile(@ModelAttribute request: JiraFileRequest) : ResponseEntity<Unit> {
         gamesService.importUserStoriesFromFile(request.gameId, request.csvFile)
