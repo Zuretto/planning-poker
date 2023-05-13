@@ -7,7 +7,8 @@ data class Game(
     val id: UUID,
     val players: MutableMap<String, Player> = mutableMapOf(),
     var areCardsVisible: Boolean = false,
-    var userStories: List<UserStory>
+    var userStories: List<UserStory>,
+    var round: Int = 0,
 ) {
     val mutex: Mutex = Mutex()
 }

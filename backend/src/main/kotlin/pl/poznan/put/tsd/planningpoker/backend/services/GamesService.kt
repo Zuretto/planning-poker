@@ -64,14 +64,27 @@ class GamesService(
     suspend fun resetCards(id: UUID) {
         val game = getGameByIdOrThrow(id)
 
-        game.mutex.withLock {
-            game.players.entries.forEach { (key, player) ->
-                game.players[key] = player.copy(selectedCard = Card.NONE)
-            }
-            game.areCardsVisible = false
-        }
+        game.resetCards()
         game.sendBroadcast()
     }
+
+    @Throws(GameNotFoundException::class)
+    suspend fun nextRound(id: UUID) {
+        getGameByIdOrThrow(id).run {
+            resetCards()
+            round++
+            if (round == userStories.size) userStories = userStories + UserStory("", "", mutableListOf())
+            sendBroadcast()
+        }
+    }
+
+    private suspend fun Game.resetCards() = mutex.withLock {
+            players.entries.forEach { (key, player) ->
+                players[key] = player.copy(selectedCard = Card.NONE)
+            }
+            areCardsVisible = false
+        }
+
 
     @Throws(GameNotFoundException::class)
     suspend fun updateUserStories(id: UUID, userStories: List<UserStory>) {

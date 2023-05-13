@@ -63,6 +63,17 @@ class TableResource(private val gamesService: GamesService) {
      * 200 - OK
      * 404 - No such game
      */
+    @PostMapping("next_round")
+    suspend fun nextRound(@RequestBody gameId: GameId): ResponseEntity<Unit> {
+        gamesService.nextRound(gameId.gameId)
+        return ResponseEntity(Unit, HttpStatus.OK)
+    }
+
+    /**
+     * Responses:
+     * 200 - OK
+     * 404 - No such game
+     */
     @PutMapping("user_stories")
     suspend fun updateUserStories(@RequestBody request: UserStoriesRequest) : ResponseEntity<Unit> {
         gamesService.updateUserStories(request.gameId, request.userStories)
