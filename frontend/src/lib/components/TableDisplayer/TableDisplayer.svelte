@@ -1,10 +1,10 @@
 <script lang="ts">
     import { usernameStore } from "../../util/store";
     import { joinTable, selectCard } from "../../util/api-handler";
-    import ErrorToast from "../Toast/ErrorToast.svelte";
     import { Card } from "../../util/enums.js";
     import TableView from "../TableView/TableView.svelte";
     import SelectCard from "./SelectCard.svelte";
+    import Toast from "../Toast/Toast.svelte";
 
     export let tableId: string;
 
@@ -49,7 +49,7 @@
 
 </script>
 
-<ErrorToast bind:toast="{toast}"/>
+<Toast bind:toast="{toast}"/>
 {#if $usernameStore === null}
     <div class="text-column">
         <h1> Welcome to the board! </h1>

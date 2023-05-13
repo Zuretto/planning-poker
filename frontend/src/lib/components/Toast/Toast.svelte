@@ -4,6 +4,7 @@
 
     const notifications = writable<string[]>([]);
 
+    export let isError = true;
     export const toast = (message: string): void => {
         notifications.update((state) => [message, ...state]);
         setTimeout(
@@ -20,7 +21,7 @@
     <div class="notifications">
         {#each $notifications as notification}
             <div role="alert"
-                 class="notification"
+                 class="{isError ? 'error' : 'notification' }"
                  transition:fade>
                 {notification}
             </div>
@@ -29,8 +30,24 @@
 {/if}
 
 <style>
-    .notification {
+    .notifications {
+        position: fixed;
+        padding: 1rem;
+        top: 0;
+        left: 50%;
+        transform: translate(-50%, 0);
+        color: white;
+    }
+
+    .error {
         background-color: red;
         padding: 30px;
+        border-radius: 20px;
+    }
+
+    .notification {
+        background-color: #646cff;
+        padding: 30px;
+        border-radius: 20px;
     }
 </style>

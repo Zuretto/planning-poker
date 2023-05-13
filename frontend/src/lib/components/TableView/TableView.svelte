@@ -3,13 +3,16 @@
     import type { PlayerResponse } from "../../util/api-handler.models";
     import { onDestroy } from "svelte";
     import ReadOnlyCard from "./ReadOnlyCard.svelte";
+    import Toast from "../Toast/Toast.svelte";
 
     export let username: string;
     export let tableId: string;
     export let resetNotifier: () => void;
 
     let areCardsVisible = false;
+    let clickedInvite = false;
     let players: PlayerResponse[] = [];
+    let toast: (message) => void;
 
     const closeWebsocket = establishWebsocketConnection(
         username,
@@ -36,21 +39,25 @@
             });
     };
 
+    const handleInviteOthers = () => {
+        navigator.clipboard.writeText(document.URL);
+        clickedInvite = true;
+        setTimeout(() => {clickedInvite = false;}, 2000);
+        toast('copied link to clipboard');
+    }
+
     onDestroy(() => closeWebsocket());
 </script>
 
+<Toast bind:toast={toast}
+       isError="{false}" />
 <div class="circle-container">
-    {#if areCardsVisible}
-        <button on:click={handleResetButton}
-                class="reset-button"> Reset
-        </button>
-    {/if}
-
-    <div class="user-story-view">
-        TODO user story CRUD
-    </div>
 
     <div class="cards-list">
+        <button on:click={handleInviteOthers}
+                class="button invite">
+            Invite others {#if clickedInvite } &#10003;{/if}
+        </button>
         <ul>
             {#each players as player, i}
                 <li style="{`transform: translate(-50%, -50%) rotate(${(i * 360) / players.length}deg) translateY(-8rem) rotate(-${(i * 360) / players.length}deg)`}">
@@ -59,33 +66,46 @@
                 </li>
             {/each}
         </ul>
+        {#if areCardsVisible}
+            <button on:click={handleResetButton}
+                    class="reset-button"> Reset
+            </button>
+        {/if}
+    </div>
+
+    <div class="user-story-view">
+        <!--  TODO user story CRUD  -->
     </div>
 </div>
 
-<style>
+<style lang="scss">
     .circle-container {
         display: flex;
         flex-direction: row;
         width: 100%;
-    }
-
-    .user-story-view {
-        flex: 5 1 0;
+        height: 100%;
     }
 
     .cards-list {
-        flex: 1 1 0 ;
+        flex: 1 1 auto;
+        width: calc(min(calc(90rem), 100vw - 64px) / 3 * 1);
+        border-radius: 20px;
+        border: 1px solid transparent;
+        outline: 2px solid #646cff;
+    }
+
+    .user-story-view {
+        flex: 5 1 auto;
+        width: calc(min(calc(90rem), 100vw - 64px) / 3 * 2);
     }
 
     ul {
-        /* TODO put the cards in rows of the cards-list column. */
         list-style-type: none;
         margin: 0;
         padding: 0;
-        position: absolute;
+        position: relative;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%);
     }
 
     ul > li {
@@ -101,7 +121,7 @@
         transform-origin: center center;
     }
 
-    .reset-button {
+    .button {
         align-self: center;
         margin-bottom: 2rem;
         border-radius: 20px;
@@ -113,5 +133,20 @@
         color: white;
         background-color: #646cff;
         cursor: pointer;
+    }
+
+    .reset-button {
+        @extend .button;
+        position: relative;
+        top: 50%;
+    }
+
+    .invite {
+        @extend .button;
+        margin-top: 1rem;
+        &:hover {
+            transition: 0.2s;
+            background-color: #4c53c7;
+        }
     }
 </style>
