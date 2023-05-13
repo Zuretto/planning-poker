@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import pl.poznan.put.tsd.planningpoker.backend.model.GameNotFoundException
+import pl.poznan.put.tsd.planningpoker.backend.model.InvalidFileException
 import pl.poznan.put.tsd.planningpoker.backend.model.PlayerDoesNotExistException
 import pl.poznan.put.tsd.planningpoker.backend.model.UsernameTakenException
 
@@ -46,5 +47,14 @@ class CustomizedResponseEntityExceptionHandler : ResponseEntityExceptionHandler(
     ): ResponseEntity<ExceptionResponse> {
         val exceptionResponse = ExceptionResponse("Player with provided username does not exist")
         return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.NOT_FOUND)
+    }
+
+    @ExceptionHandler(InvalidFileException::class)
+    fun handleInvalidFileException(
+        invalidFile: InvalidFileException,
+        request: WebRequest
+    ): ResponseEntity<ExceptionResponse> {
+        val exceptionResponse = ExceptionResponse("Invalid file provided")
+        return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.BAD_REQUEST)
     }
 }
