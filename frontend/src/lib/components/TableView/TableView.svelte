@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { establishWebsocketConnection, resetCard } from "../../util/api-handler";
-    import type { PlayerResponse } from "../../util/api-handler.models";
+    import { establishWebsocketConnection, nextRound, resetCard } from "../../util/api-handler";
+    import type { PlayerResponse, UserStoryResponse } from "../../util/api-handler.models";
     import { onDestroy } from "svelte";
     import ReadOnlyCard from "./ReadOnlyCard.svelte";
     import Toast from "../Toast/Toast.svelte";
@@ -8,6 +8,8 @@
     export let username: string;
     export let tableId: string;
     export let resetNotifier: () => void;
+    export let userStoriesNotifier: (userStories: UserStoryResponse[]) => void;
+    export let roundNotifier: (round: number) => void;
 
     let areCardsVisible = false;
     let clickedInvite = false;
@@ -28,6 +30,8 @@
                 // reset has occurred
                 resetNotifier();
             }
+            userStoriesNotifier(message.data.userStories);
+            roundNotifier(message.data.round);
             players = message.data.players;
             areCardsVisible = message.data.areCardsVisible;
         }
@@ -39,10 +43,18 @@
             });
     };
 
+    const handleNextRound = () => {
+        nextRound(tableId)
+            .catch(error => {/*TODO error handling*/
+            });
+    };
+
     const handleInviteOthers = () => {
         navigator.clipboard.writeText(document.URL);
         clickedInvite = true;
-        setTimeout(() => {clickedInvite = false;}, 2000);
+        setTimeout(() => {
+            clickedInvite = false;
+        }, 2000);
         toast('copied link to clipboard');
     }
 
@@ -50,14 +62,14 @@
 </script>
 
 <Toast bind:toast={toast}
-       isError="{false}" />
+       isError="{false}"/>
 <div class="circle-container">
-
-    <div class="cards-list">
-        <button on:click={handleInviteOthers}
-                class="button invite">
-            Invite others {#if clickedInvite } &#10003;{/if}
-        </button>
+    <button on:click={handleInviteOthers}
+            class="button invite">
+        Invite others
+        {#if clickedInvite } &#10003;{/if}
+    </button>
+    <div class="carousel">
         <ul>
             {#each players as player, i}
                 <li style="{`transform: translate(-50%, -50%) rotate(${(i * 360) / players.length}deg) translateY(-8rem) rotate(-${(i * 360) / players.length}deg)`}">
@@ -66,37 +78,37 @@
                 </li>
             {/each}
         </ul>
+    </div>
+    <div class="button-container">
         {#if areCardsVisible}
             <button on:click={handleResetButton}
-                    class="reset-button"> Reset
+                    class="button"> Reset
+            </button>
+            <button on:click={handleNextRound}
+                    class="next-round-button"> Next Round
             </button>
         {/if}
-    </div>
-
-    <div class="user-story-view">
-        <!--  TODO user story CRUD  -->
     </div>
 </div>
 
 <style lang="scss">
     .circle-container {
-        display: flex;
-        flex-direction: row;
         width: 100%;
         height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
-    .cards-list {
-        flex: 1 1 auto;
-        width: calc(min(calc(90rem), 100vw - 64px) / 3 * 1);
-        border-radius: 20px;
-        border: 1px solid transparent;
-        outline: 2px solid #646cff;
+    .carousel {
+        flex: 1 0 auto;
     }
 
-    .user-story-view {
-        flex: 5 1 auto;
-        width: calc(min(calc(90rem), 100vw - 64px) / 3 * 2);
+    .button-container {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        gap: 1rem;
     }
 
     ul {
@@ -133,20 +145,25 @@
         color: white;
         background-color: #646cff;
         cursor: pointer;
+        &:hover {
+            transition: 0.2s;
+            background-color: #4c53c7;
+        }
     }
 
-    .reset-button {
+    .next-round-button {
         @extend .button;
-        position: relative;
-        top: 50%;
+        border: 1px solid #646cff;
+        color: #646cff;
+        background-color: white;
+        &:hover {
+            transition: 0.2s;
+            background-color: #bcbcc0;
+        }
     }
 
     .invite {
         @extend .button;
         margin-top: 1rem;
-        &:hover {
-            transition: 0.2s;
-            background-color: #4c53c7;
-        }
     }
 </style>

@@ -1,4 +1,4 @@
-import type { GameResponse, TableResponse, ValidationError } from './api-handler.models';
+import type {GameResponse, TableResponse, UserStoryResponse, ValidationError} from './api-handler.models';
 import { usernameStore } from "./store";
 import type { Card } from "./enums";
 
@@ -81,7 +81,44 @@ export const resetCard = (gameId: string): Promise<void> => {
             }
         })
 }
+export const nextRound = (gameId: string): Promise<void> => {
+    return fetch(`${baseUrl}/poker_api/v1/next_round`, {
+        method: 'POST',
+        body: JSON.stringify({
+            game_id: gameId,
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        }
+    })
+        .then(async response => {
+            if (response.status === 404) {
+                const gottenResponse = await response.json();
+                throw gottenResponse.message;
+            }
+        })
+}
 
+export const setUserStories = (gameId: string, userStories: UserStoryResponse[]): Promise<void> => {
+    return fetch(`${baseUrl}/poker_api/v1/user_stories`, {
+        method: 'PUT',
+        body: JSON.stringify({
+            game_id: gameId,
+            user_stories: userStories,
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        }
+    })
+        .then(async response => {
+            if (response.status === 404) {
+                const gottenResponse = await response.json();
+                throw gottenResponse.message;
+            }
+        })
+}
 
 /**
  *

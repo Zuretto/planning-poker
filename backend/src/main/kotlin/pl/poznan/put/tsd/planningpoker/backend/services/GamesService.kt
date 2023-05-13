@@ -3,8 +3,10 @@ package pl.poznan.put.tsd.planningpoker.backend.services
 import kotlinx.coroutines.sync.withLock
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 import pl.poznan.put.tsd.planningpoker.backend.components.UUIDProvider
 import pl.poznan.put.tsd.planningpoker.backend.model.*
+import pl.poznan.put.tsd.planningpoker.backend.components.CsvParser
 import pl.poznan.put.tsd.planningpoker.backend.resources.MessageHandler
 import pl.poznan.put.tsd.planningpoker.backend.resources.MessageType
 import pl.poznan.put.tsd.planningpoker.backend.resources.requests.Card
@@ -16,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap
 @Service
 class GamesService(
     private val uuidProvider: UUIDProvider,
-    @Lazy private val messageHandler: MessageHandler
+    @Lazy private val messageHandler: MessageHandler,
+    private val csvParser: CsvParser
 ) {
     private val _games = ConcurrentHashMap<UUID, Game>()
     val games: Map<UUID, Game> = _games
@@ -61,14 +64,27 @@ class GamesService(
     suspend fun resetCards(id: UUID) {
         val game = getGameByIdOrThrow(id)
 
-        game.mutex.withLock {
-            game.players.entries.forEach { (key, player) ->
-                game.players[key] = player.copy(selectedCard = Card.NONE)
-            }
-            game.areCardsVisible = false
-        }
+        game.resetCards()
         game.sendBroadcast()
     }
+
+    @Throws(GameNotFoundException::class)
+    suspend fun nextRound(id: UUID) {
+        getGameByIdOrThrow(id).run {
+            resetCards()
+            round++
+            if (round == userStories.size) userStories = userStories + UserStory("", "", mutableListOf())
+            sendBroadcast()
+        }
+    }
+
+    private suspend fun Game.resetCards() = mutex.withLock {
+            players.entries.forEach { (key, player) ->
+                players[key] = player.copy(selectedCard = Card.NONE)
+            }
+            areCardsVisible = false
+        }
+
 
     @Throws(GameNotFoundException::class)
     suspend fun updateUserStories(id: UUID, userStories: List<UserStory>) {
@@ -76,6 +92,16 @@ class GamesService(
 
         game.mutex.withLock {
             game.userStories = userStories
+        }
+        game.sendBroadcast()
+    }
+
+    @Throws(GameNotFoundException::class, InvalidFileException::class)
+    suspend fun importUserStoriesFromFile(id: UUID, csvFile: MultipartFile) {
+        val game = getGameByIdOrThrow(id)
+
+        game.mutex.withLock {
+            game.userStories = csvParser.readCsv(csvFile)
         }
         game.sendBroadcast()
     }
@@ -96,6 +122,4 @@ class GamesService(
             e.printStackTrace()
         }
     }
-
-
 }
