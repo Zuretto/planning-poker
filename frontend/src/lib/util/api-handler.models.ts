@@ -14,8 +14,21 @@ export type GameResponse = {
     data: {
         areCardsVisible: boolean,
         players: PlayerResponse[];
+        userStories: UserStoryResponse[];
+        round: number;
     };
 };
+
+export type UserStoryResponse = {
+    key: string;
+    name: string;
+    tasks: TaskResponse[];
+}
+
+export type TaskResponse = {
+    key: string;
+    description: string;
+}
 
 export type ValidationError = {
     type: 'Error';
