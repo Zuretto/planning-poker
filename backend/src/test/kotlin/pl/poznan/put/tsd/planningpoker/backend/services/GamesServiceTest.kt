@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
+import pl.poznan.put.tsd.planningpoker.backend.components.CsvParser
 import pl.poznan.put.tsd.planningpoker.backend.components.UUIDProvider
 import pl.poznan.put.tsd.planningpoker.backend.model.GameNotFoundException
 import pl.poznan.put.tsd.planningpoker.backend.model.PlayerDoesNotExistException
@@ -21,7 +22,8 @@ class GamesServiceTest {
         `when`(generateUUID()).thenReturn(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
     }
     private val messageHandler = mock(MessageHandler::class.java) // TODO test properly...
-    private val service = GamesService(uuidProvider, messageHandler)
+    private val csvParser = mock(CsvParser::class.java) // TODO test properly...
+    private val service = GamesService(uuidProvider, messageHandler, csvParser)
 
     @Test
     fun `Given creators name when creating a table then return uuid`() = runTest {

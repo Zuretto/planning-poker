@@ -1,17 +1,16 @@
 package pl.poznan.put.tsd.planningpoker.backend.resources
 
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import pl.poznan.put.tsd.planningpoker.backend.resources.requests.CardRequest
-import pl.poznan.put.tsd.planningpoker.backend.resources.requests.GameId
-import pl.poznan.put.tsd.planningpoker.backend.resources.requests.User
-import pl.poznan.put.tsd.planningpoker.backend.resources.requests.UserStoriesRequest
+import pl.poznan.put.tsd.planningpoker.backend.resources.requests.*
 import pl.poznan.put.tsd.planningpoker.backend.resources.responses.TableCreatedResponse
 import pl.poznan.put.tsd.planningpoker.backend.services.GamesService
 import java.util.UUID
@@ -59,15 +58,37 @@ class TableResource(private val gamesService: GamesService) {
         return ResponseEntity(Unit, HttpStatus.OK)
     }
 
+    /**
+     * Responses:
+     * 200 - OK
+     * 404 - No such game
+     */
     @PostMapping("next_round")
     suspend fun nextRound(@RequestBody gameId: GameId): ResponseEntity<Unit> {
         gamesService.nextRound(gameId.gameId)
         return ResponseEntity(Unit, HttpStatus.OK)
     }
 
+    /**
+     * Responses:
+     * 200 - OK
+     * 404 - No such game
+     */
     @PutMapping("user_stories")
     suspend fun updateUserStories(@RequestBody request: UserStoriesRequest) : ResponseEntity<Unit> {
         gamesService.updateUserStories(request.gameId, request.userStories)
+        return ResponseEntity(Unit, HttpStatus.OK)
+    }
+
+    /**
+     * Responses:
+     * 200 - OK
+     * 400 - Invalid file
+     * 404 - No such game
+     */
+    @PostMapping("user_stories", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    suspend fun importUserStoriesFromFile(@ModelAttribute request: JiraFileRequest) : ResponseEntity<Unit> {
+        gamesService.importUserStoriesFromFile(request.gameId, request.csvFile)
         return ResponseEntity(Unit, HttpStatus.OK)
     }
 }

@@ -3,8 +3,10 @@ package pl.poznan.put.tsd.planningpoker.backend.services
 import kotlinx.coroutines.sync.withLock
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 import pl.poznan.put.tsd.planningpoker.backend.components.UUIDProvider
 import pl.poznan.put.tsd.planningpoker.backend.model.*
+import pl.poznan.put.tsd.planningpoker.backend.components.CsvParser
 import pl.poznan.put.tsd.planningpoker.backend.resources.MessageHandler
 import pl.poznan.put.tsd.planningpoker.backend.resources.MessageType
 import pl.poznan.put.tsd.planningpoker.backend.resources.requests.Card
@@ -16,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap
 @Service
 class GamesService(
     private val uuidProvider: UUIDProvider,
-    @Lazy private val messageHandler: MessageHandler
+    @Lazy private val messageHandler: MessageHandler,
+    private val csvParser: CsvParser
 ) {
     private val _games = ConcurrentHashMap<UUID, Game>()
     val games: Map<UUID, Game> = _games
@@ -70,7 +73,7 @@ class GamesService(
         getGameByIdOrThrow(id).run {
             resetCards()
             round++
-            if (round == userStories.size) userStories = userStories + UserStory("", "", emptyList())
+            if (round == userStories.size) userStories = userStories + UserStory("", "", mutableListOf())
             sendBroadcast()
         }
     }
@@ -93,6 +96,16 @@ class GamesService(
         game.sendBroadcast()
     }
 
+    @Throws(GameNotFoundException::class, InvalidFileException::class)
+    suspend fun importUserStoriesFromFile(id: UUID, csvFile: MultipartFile) {
+        val game = getGameByIdOrThrow(id)
+
+        game.mutex.withLock {
+            game.userStories = csvParser.readCsv(csvFile)
+        }
+        game.sendBroadcast()
+    }
+
     @Throws(GameNotFoundException::class)
     private fun getGameByIdOrThrow(id: UUID) =
         _games[id] ?: throw GameNotFoundException("Game with id: $id has been not found")
@@ -109,6 +122,4 @@ class GamesService(
             e.printStackTrace()
         }
     }
-
-
 }
