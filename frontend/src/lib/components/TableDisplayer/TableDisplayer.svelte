@@ -1,10 +1,11 @@
 <script lang="ts">
     import { usernameStore } from "../../util/store";
-    import { joinTable, selectCard } from "../../util/api-handler";
+    import { joinTable, selectCard, setUserStories } from "../../util/api-handler";
     import ErrorToast from "../Toast/ErrorToast.svelte";
     import { Card } from "../../util/enums.js";
     import TableView from "../TableView/TableView.svelte";
     import SelectCard from "./SelectCard.svelte";
+    import type { UserStoryResponse } from "../../util/api-handler.models";
 
     export let tableId: string;
 
@@ -47,6 +48,64 @@
         disabled = true;
     };
 
+    let round = 0;
+    let userStories = []
+
+    const handleRound = (newRound: number): void => {
+        round = newRound;
+        console.log("round: " + round)
+        if (round < userStories.length) currentUserStory = userStories[round];
+    }
+    const handleUserStories = (newUserStories: UserStoryResponse[]): void => {
+        console.log(newUserStories)
+        userStories = newUserStories;
+        if (round < userStories.length) currentUserStory = userStories[round];
+    }
+
+    let currentUserStory: UserStoryResponse = {
+        key: "",
+        name: "",
+        tasks: []
+    }
+
+    function removeTask(taskIndex) {
+        currentUserStory.tasks = currentUserStory.tasks.slice(0, taskIndex).concat(currentUserStory.tasks.slice(taskIndex + 1));
+        uploadUserStories()
+    }
+
+    function addTask(event) {
+        if (event.key === "Enter" && event.target.textContent !== "") {
+            const newTask = {
+                key: currentUserStory.tasks.length.toString(),
+                description: event.target.textContent
+            };
+            currentUserStory.tasks = [...currentUserStory.tasks, newTask];
+            event.target.textContent = "";
+        }
+        uploadUserStories()
+    }
+
+    function uploadUserStories() {
+        userStories[round] = currentUserStory;
+        setUserStories(tableId, userStories).catch(errorMessage => toast(errorMessage));
+    }
+
+    function updateTitle(event) {
+        currentUserStory.name = event.target.textContent;
+        uploadUserStories();
+    }
+
+    function updateTask(taskIndex, event) {
+        currentUserStory.tasks[taskIndex].description = event.target.textContent;
+        uploadUserStories()
+    }
+
+    function preventNewLines(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+        }
+    }
+
 </script>
 
 <ErrorToast bind:toast="{toast}"/>
@@ -62,10 +121,33 @@
     </div>
 {:else}
     <div class="wrapper">
+        <div class="user-story">
+            <h2 contenteditable="true" class:emptyTitle={currentUserStory.name.length === 0}
+                on:blur={() => updateTitle(event)}>{@html currentUserStory.name}</h2>
+            <ul>
+                {#each currentUserStory.tasks as task, taskIndex}
+                    <div class="task-item">
+                        <li contenteditable="true" on:blur={() => {updateTask(taskIndex, event);}}
+                            on:keydown={preventNewLines}>{task.description}</li>
+                        <button on:click={() => removeTask(taskIndex)} class="inline-button">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 class="feather feather-x">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                {/each}
+                <li contenteditable="true" on:keydown={(event) => addTask(event)} on:keydown={preventNewLines}></li>
+            </ul>
+        </div>
         <div class="text-column">
             <TableView username="{$usernameStore}"
                        tableId="{tableId}"
-                       resetNotifier="{handleReset}"/>
+                       resetNotifier="{handleReset}"
+                       roundNotifier="{handleRound}"
+                       userStoriesNotifier="{handleUserStories}"/>
         </div>
         <button class="submit" on:click={submitCard} {disabled}>Submit</button>
         <div class="cards">
@@ -118,5 +200,40 @@
 
     .submit:disabled {
         background-color: #cccccc
+    }
+
+    .user-story {
+        position: absolute;
+        flex: 1 0 auto;
+        padding: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin: 1rem;
+        width: 16rem;
+    }
+
+    .emptyTitle {
+        border: 1px solid #646cff;
+        border-radius: 20px;
+    }
+
+    .inline-button {
+        display: inline-block;
+        border: none;
+        background: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .task-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .feather {
+        vertical-align: middle;
     }
 </style>

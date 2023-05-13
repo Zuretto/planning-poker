@@ -1,12 +1,14 @@
 <script lang="ts">
-    import { establishWebsocketConnection, resetCard } from "../../util/api-handler";
-    import type { PlayerResponse } from "../../util/api-handler.models";
+    import {establishWebsocketConnection, nextRound, resetCard} from "../../util/api-handler";
+    import type {PlayerResponse, UserStoryResponse} from "../../util/api-handler.models";
     import { onDestroy } from "svelte";
     import ReadOnlyCard from "./ReadOnlyCard.svelte";
 
     export let username: string;
     export let tableId: string;
     export let resetNotifier: () => void;
+    export let userStoriesNotifier: (userStories: UserStoryResponse[]) => void;
+    export let roundNotifier: (round: number) => void;
 
     let areCardsVisible = false;
     let players: PlayerResponse[] = [];
@@ -25,6 +27,8 @@
                 // reset has occurred
                 resetNotifier();
             }
+            userStoriesNotifier(message.data.userStories);
+            roundNotifier(message.data.round);
             players = message.data.players;
             areCardsVisible = message.data.areCardsVisible;
         }
@@ -35,6 +39,11 @@
             .catch(error => {/*TODO error handling*/});
     };
 
+    const handleNextRound = () => {
+        nextRound(tableId)
+            .catch(error => {/*TODO error handling*/});
+    };
+
     onDestroy(() => closeWebsocket());
 </script>
 
@@ -42,6 +51,9 @@
     {#if areCardsVisible}
         <button on:click={handleResetButton}
                 class="reset-button"> Reset
+        </button>
+        <button on:click={handleNextRound}
+                class="next-round-button"> Next Round
         </button>
     {/if}
     <ul>
@@ -101,6 +113,20 @@
         font-family: inherit;
         color: white;
         background-color: #646cff;
+        cursor: pointer;
+    }
+    .next-round-button {
+        align-self: center;
+        margin-bottom: 2rem;
+        margin-left: 1rem;
+        border-radius: 20px;
+        border: 1px solid #646cff;
+        padding: 0.3rem 1rem;
+        font-size: 1em;
+        font-weight: 450;
+        font-family: inherit;
+        color: #646cff;
+        background-color: white;
         cursor: pointer;
     }
 </style>
