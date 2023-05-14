@@ -22,9 +22,12 @@ class CsvParser {
 
                 readAllWithHeaderAsSequence().forEach {
                     if (it["Issue Type"].equals("Story"))
-                        userStories.add(UserStory(it["Issue id"]!!.toInt(), it["Summary"]!!, mutableListOf()))
+                        userStories.add(UserStory(it["Issue id"]!!.toInt(), it["Summary"]!!, mutableListOf(),
+                            it["Original estimate"]?.toInt()
+                        ))
                     else
-                        tasks.add(Task(it["Issue id"]!!.toInt(), it["Summary"]!!, it["Parent"]!!.toInt(), it["Parent summary"]!!))
+                        tasks.add(Task(it["Issue id"]!!.toInt(), it["Summary"]!!, it["Parent"]!!.toInt(),
+                            it["Parent summary"]!!))
                 }
                 tasks.forEach {
                     for (userStory: UserStory in userStories) {
@@ -43,7 +46,7 @@ class CsvParser {
 
     fun writeToCsv(userStories: List<UserStory>) : File {
         csvWriter().open("Jira.csv") {
-            writeRow(listOf("Summary", "Issue id", "Issue Type", "Parent", "Parent summary"))
+            writeRow(listOf("Summary", "Issue id", "Issue Type", "Original estimate", "Parent", "Parent summary"))
 
             var idCounter = 10000
 
@@ -54,7 +57,7 @@ class CsvParser {
                 else
                     idCounter = userStory.id!! + 1
 
-                writeRow(listOf(userStory.name, userStory.id, "Story", "", ""))
+                writeRow(listOf(userStory.name, userStory.id, "Story", userStory.estimationAverage, "", ""))
 
                 for (task: Task in userStory.tasks) {
 
@@ -63,7 +66,7 @@ class CsvParser {
                     else
                         idCounter = task.id!! + 1
 
-                    writeRow(listOf(task.description, task.id, "Subtask", userStory.id, userStory.name))
+                    writeRow(listOf(task.description, task.id, "Subtask", "", userStory.id, userStory.name))
                 }
             }
         }

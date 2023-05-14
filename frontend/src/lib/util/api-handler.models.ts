@@ -24,6 +24,7 @@ export type UserStoryResponse = {
     id: number;
     name: string;
     tasks: TaskResponse[];
+    estimationAverage: number;
 }
 
 export type TaskResponse = {

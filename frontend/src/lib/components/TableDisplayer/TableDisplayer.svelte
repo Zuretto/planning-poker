@@ -68,7 +68,8 @@
     let currentUserStory: UserStoryResponse = {
         id: null,
         name: "",
-        tasks: []
+        tasks: [],
+        estimationAverage: null
     }
 
     function removeTask(taskIndex) {
