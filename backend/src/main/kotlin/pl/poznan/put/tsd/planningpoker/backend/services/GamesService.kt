@@ -67,7 +67,7 @@ class GamesService(
         game.sendBroadcast()
     }
 
-    @Throws(GameNotFoundException::class, ForbiddenActionException::class)
+    @Throws(GameNotFoundException::class)
     suspend fun flipCards(id: UUID) {
         val game = getGameByIdOrThrow(id)
 

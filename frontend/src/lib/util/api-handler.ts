@@ -94,7 +94,7 @@ export const flipCards = (gameId: string): Promise<void> => {
         }
     })
         .then(async response => {
-            if (response.status === 404 || response.status === 403) {
+            if (response.status === 404) {
                 const gottenResponse = await response.json();
                 throw gottenResponse.message;
             }

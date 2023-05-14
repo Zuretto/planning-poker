@@ -61,7 +61,6 @@ class TableResource(private val gamesService: GamesService) {
     /**
      * Responses:
      * 200 - OK
-     * 403 - Forbidden Action
      * 404 - No such game
      */
     @PostMapping("flip_cards")
