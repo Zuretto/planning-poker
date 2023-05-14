@@ -140,6 +140,26 @@ export const setUserStories = (gameId: string, userStories: UserStoryResponse[])
         })
 }
 
+export const uploadJiraCSV = (gameId: string, file: File): Promise<void> => {
+    const formData = new FormData();
+    formData.append('gameId', gameId);
+    formData.append('csvFile', file);
+
+    return fetch(`${baseUrl}/poker_api/v1/user_stories`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            Accept: 'application/json',
+        }
+    })
+        .then(async response => {
+            if (response.status === 404 || response.status === 400) {
+                const gottenResponse = await response.json();
+                throw gottenResponse.message;
+            }
+        })
+}
+
 /**
  *
  * Establishes connection with the websocket endpoint.
