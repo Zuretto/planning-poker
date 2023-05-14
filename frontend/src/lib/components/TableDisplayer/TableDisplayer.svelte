@@ -1,10 +1,10 @@
 <script lang="ts">
     import { usernameStore } from "../../util/store";
     import { joinTable, selectCard, setUserStories } from "../../util/api-handler";
-    import ErrorToast from "../Toast/ErrorToast.svelte";
     import { Card } from "../../util/enums.js";
     import TableView from "../TableView/TableView.svelte";
     import SelectCard from "./SelectCard.svelte";
+    import Toast from "../Toast/Toast.svelte";
     import type { UserStoryResponse } from "../../util/api-handler.models";
 
     export let tableId: string;
@@ -108,7 +108,7 @@
 
 </script>
 
-<ErrorToast bind:toast="{toast}"/>
+<Toast bind:toast="{toast}"/>
 {#if $usernameStore === null}
     <div class="text-column">
         <h1> Welcome to the board! </h1>
@@ -121,33 +121,35 @@
     </div>
 {:else}
     <div class="wrapper">
-        <div class="user-story">
-            <h2 contenteditable="true" class:emptyTitle={currentUserStory.name.length === 0}
-                on:blur={() => updateTitle(event)}>{@html currentUserStory.name}</h2>
-            <ul>
-                {#each currentUserStory.tasks as task, taskIndex}
-                    <div class="task-item">
-                        <li contenteditable="true" on:blur={() => {updateTask(taskIndex, event);}}
-                            on:keydown={preventNewLines}>{task.description}</li>
-                        <button on:click={() => removeTask(taskIndex)} class="inline-button">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                 class="feather feather-x">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </button>
-                    </div>
-                {/each}
-                <li contenteditable="true" on:keydown={(event) => addTask(event)} on:keydown={preventNewLines}></li>
-            </ul>
-        </div>
-        <div class="text-column">
-            <TableView username="{$usernameStore}"
-                       tableId="{tableId}"
-                       resetNotifier="{handleReset}"
-                       roundNotifier="{handleRound}"
-                       userStoriesNotifier="{handleUserStories}"/>
+        <div class="table-and-user-story">
+            <div class="cards-table">
+                <TableView username="{$usernameStore}"
+                           tableId="{tableId}"
+                           resetNotifier="{handleReset}"
+                           roundNotifier="{handleRound}"
+                           userStoriesNotifier="{handleUserStories}"/>
+            </div>
+            <div class="user-story-view">
+                <h2 contenteditable="true" class:emptyTitle={currentUserStory.name.length === 0}
+                    on:blur={() => updateTitle(event)}>{@html currentUserStory.name}</h2>
+                <ul>
+                    {#each currentUserStory.tasks as task, taskIndex}
+                        <div class="task-item">
+                            <li contenteditable="true" on:blur={() => {updateTask(taskIndex, event);}}
+                                on:keydown={preventNewLines}>{task.description}</li>
+                            <button on:click={() => removeTask(taskIndex)} class="inline-button">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                     class="feather feather-x">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    {/each}
+                    <li contenteditable="true" on:keydown={(event) => addTask(event)} on:keydown={preventNewLines}></li>
+                </ul>
+            </div>
         </div>
         <button class="submit" on:click={submitCard} {disabled}>Submit</button>
         <div class="cards">
@@ -163,11 +165,32 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        width: fit-content;
+        margin: auto;
+        align-items: stretch;
     }
 
-    .text-column {
+    .table-and-user-story {
         flex: 1 0 auto;
+        display: flex;
+        flex-direction: row;
     }
+
+    .cards-table {
+        flex: 1 1 auto;
+        width: calc(min(calc(90rem), 100vw - 64px) / 3 * 1);
+        border-radius: 20px;
+        border: 1px solid transparent;
+        outline: 2px solid #646cff;
+    }
+
+    .user-story-view {
+        flex: 5 1 auto;
+        width: calc(min(calc(90rem), 100vw - 64px) / 3 * 2);
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
+
 
     .cards {
         display: flex;
@@ -175,6 +198,8 @@
         justify-content: center;
         flex-shrink: 0;
         gap: 1rem;
+        align-self: stretch;
+        width: min(calc(90rem), 100vw - 64px);
     }
 
     .submit {
@@ -200,16 +225,6 @@
 
     .submit:disabled {
         background-color: #cccccc
-    }
-
-    .user-story {
-        position: absolute;
-        flex: 1 0 auto;
-        padding: 1rem;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        margin: 1rem;
-        width: 16rem;
     }
 
     .emptyTitle {
