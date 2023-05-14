@@ -12,7 +12,8 @@ export type PlayerResponse = {
 export type GameResponse = {
     type: 'Game';
     data: {
-        areCardsVisible: boolean,
+        areCardsVisible: boolean;
+        creator: string;
         players: PlayerResponse[];
         userStories: UserStoryResponse[];
         round: number;

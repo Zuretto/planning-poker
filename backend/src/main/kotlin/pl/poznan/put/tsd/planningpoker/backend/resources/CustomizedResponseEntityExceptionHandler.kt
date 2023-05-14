@@ -10,6 +10,7 @@ import pl.poznan.put.tsd.planningpoker.backend.model.GameNotFoundException
 import pl.poznan.put.tsd.planningpoker.backend.model.InvalidFileException
 import pl.poznan.put.tsd.planningpoker.backend.model.PlayerDoesNotExistException
 import pl.poznan.put.tsd.planningpoker.backend.model.UsernameTakenException
+import pl.poznan.put.tsd.planningpoker.backend.model.ForbiddenActionException
 
 @RestControllerAdvice
 class CustomizedResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
@@ -56,5 +57,14 @@ class CustomizedResponseEntityExceptionHandler : ResponseEntityExceptionHandler(
     ): ResponseEntity<ExceptionResponse> {
         val exceptionResponse = ExceptionResponse("Invalid file provided")
         return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(ForbiddenActionException::class)
+    fun handleForbiddenActionException(
+        invalidFile: InvalidFileException,
+        request: WebRequest
+    ): ResponseEntity<ExceptionResponse> {
+        val exceptionResponse = ExceptionResponse("Action forbidden")
+        return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.FORBIDDEN)
     }
 }
