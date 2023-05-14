@@ -6,6 +6,7 @@ import pl.poznan.put.tsd.planningpoker.backend.resources.responses.UserStoryResp
 
 data class GameResponse(
     val areCardsVisible: Boolean,
+    val creator: String,
     val players: List<PlayerResponse>,
     val userStories: List<UserStoryResponse>,
     val round: Int,
@@ -13,6 +14,7 @@ data class GameResponse(
     companion object {
         fun Game.toResponseModel(): GameResponse = GameResponse(
             areCardsVisible = areCardsVisible,
+            creator = creator,
             players = players.values.map { it.toResponseModel() },
             userStories = userStories.map { it.toResponseModel() },
             round = round

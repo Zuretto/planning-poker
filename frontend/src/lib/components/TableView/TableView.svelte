@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { establishWebsocketConnection, nextRound, resetCard } from "../../util/api-handler";
+    import {establishWebsocketConnection, flipCards, nextRound, resetCard} from "../../util/api-handler";
     import type { PlayerResponse, UserStoryResponse } from "../../util/api-handler.models";
     import { onDestroy } from "svelte";
     import ReadOnlyCard from "./ReadOnlyCard.svelte";
@@ -11,10 +11,12 @@
     export let userStoriesNotifier: (userStories: UserStoryResponse[]) => void;
     export let roundNotifier: (round: number) => void;
 
-    let areCardsVisible = false;
-    let clickedInvite = false;
     let players: PlayerResponse[] = [];
+    let creator: string;
+    let areCardsVisible = false;
+
     let toast: (message) => void;
+    let clickedInvite = false;
 
     const closeWebsocket = establishWebsocketConnection(
         username,
@@ -33,6 +35,7 @@
             userStoriesNotifier(message.data.userStories);
             roundNotifier(message.data.round);
             players = message.data.players;
+            creator = message.data.creator;
             areCardsVisible = message.data.areCardsVisible;
         }
     );
@@ -45,6 +48,12 @@
 
     const handleNextRound = () => {
         nextRound(tableId)
+            .catch(error => {/*TODO error handling*/
+            });
+    };
+
+    const handleFlipCards = () => {
+        flipCards(tableId)
             .catch(error => {/*TODO error handling*/
             });
     };
@@ -87,6 +96,12 @@
             <button on:click={handleNextRound}
                     class="next-round-button"> Next Round
             </button>
+        {:else}
+            {#if creator === username}
+                <button on:click={handleFlipCards}
+                        class="next-round-button"> Flip Cards
+                </button>
+            {/if}
         {/if}
     </div>
 </div>
@@ -109,6 +124,7 @@
         flex-direction: row;
         align-items: baseline;
         gap: 1rem;
+        flex-wrap: wrap;
     }
 
     ul {

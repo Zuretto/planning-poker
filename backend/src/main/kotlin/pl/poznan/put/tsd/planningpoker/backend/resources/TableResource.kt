@@ -63,6 +63,17 @@ class TableResource(private val gamesService: GamesService) {
      * 200 - OK
      * 404 - No such game
      */
+    @PostMapping("flip_cards")
+    suspend fun flipCards(@RequestBody gameId: GameId): ResponseEntity<Unit> {
+        gamesService.flipCards(gameId.gameId)
+        return ResponseEntity(Unit, HttpStatus.OK)
+    }
+
+    /**
+     * Responses:
+     * 200 - OK
+     * 404 - No such game
+     */
     @PostMapping("next_round")
     suspend fun nextRound(@RequestBody gameId: GameId): ResponseEntity<Unit> {
         gamesService.nextRound(gameId.gameId)

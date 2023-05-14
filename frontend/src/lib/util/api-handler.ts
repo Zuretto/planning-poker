@@ -81,6 +81,26 @@ export const resetCard = (gameId: string): Promise<void> => {
             }
         })
 }
+
+export const flipCards = (gameId: string): Promise<void> => {
+    return fetch(`${baseUrl}/poker_api/v1/flip_cards`, {
+        method: 'POST',
+        body: JSON.stringify({
+            game_id: gameId,
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        }
+    })
+        .then(async response => {
+            if (response.status === 404) {
+                const gottenResponse = await response.json();
+                throw gottenResponse.message;
+            }
+        })
+}
+
 export const nextRound = (gameId: string): Promise<void> => {
     return fetch(`${baseUrl}/poker_api/v1/next_round`, {
         method: 'POST',

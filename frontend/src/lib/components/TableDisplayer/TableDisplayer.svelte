@@ -53,11 +53,9 @@
 
     const handleRound = (newRound: number): void => {
         round = newRound;
-        console.log("round: " + round)
         if (round < userStories.length) currentUserStory = userStories[round];
     }
     const handleUserStories = (newUserStories: UserStoryResponse[]): void => {
-        console.log(newUserStories)
         userStories = newUserStories;
         if (round < userStories.length) currentUserStory = userStories[round];
     }

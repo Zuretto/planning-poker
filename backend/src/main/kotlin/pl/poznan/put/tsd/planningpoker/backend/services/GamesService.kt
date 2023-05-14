@@ -30,7 +30,7 @@ class GamesService(
      */
     suspend fun createGame(username: String): UUID {
         val id = uuidProvider.generateUUID()
-        _games[id] = Game(id = id, players = mutableMapOf(username to Player(username)), userStories = listOf())
+        _games[id] = Game(id = id, creator = username, players = mutableMapOf(username to Player(username)), userStories = listOf())
         return id
     }
 
@@ -59,12 +59,19 @@ class GamesService(
         game.sendBroadcast()
     }
 
-
     @Throws(GameNotFoundException::class)
     suspend fun resetCards(id: UUID) {
         val game = getGameByIdOrThrow(id)
 
         game.resetCards()
+        game.sendBroadcast()
+    }
+
+    @Throws(GameNotFoundException::class)
+    suspend fun flipCards(id: UUID) {
+        val game = getGameByIdOrThrow(id)
+
+        game.flipCards()
         game.sendBroadcast()
     }
 
@@ -77,14 +84,6 @@ class GamesService(
             sendBroadcast()
         }
     }
-
-    private suspend fun Game.resetCards() = mutex.withLock {
-            players.entries.forEach { (key, player) ->
-                players[key] = player.copy(selectedCard = Card.NONE)
-            }
-            areCardsVisible = false
-        }
-
 
     @Throws(GameNotFoundException::class)
     suspend fun updateUserStories(id: UUID, userStories: List<UserStory>) {
@@ -106,11 +105,6 @@ class GamesService(
         game.sendBroadcast()
     }
 
-    @Throws(GameNotFoundException::class)
-    private fun getGameByIdOrThrow(id: UUID) =
-        _games[id] ?: throw GameNotFoundException("Game with id: $id has been not found")
-
-
     fun Game.sendBroadcast() {
         try {
             players.values.forEach {
@@ -122,4 +116,24 @@ class GamesService(
             e.printStackTrace()
         }
     }
+
+    private suspend fun Game.resetCards() = mutex.withLock {
+        players.entries.forEach { (key, player) ->
+            players[key] = player.copy(selectedCard = Card.NONE)
+        }
+        areCardsVisible = false
+    }
+
+    private suspend fun Game.flipCards() = mutex.withLock {
+        players.entries.forEach { (key, player) ->
+            players[key] = player.copy(
+                selectedCard = if (player.selectedCard == Card.NONE) Card.QUESTION_MARK else player.selectedCard
+            )
+        }
+        areCardsVisible = true
+    }
+
+    @Throws(GameNotFoundException::class)
+    private fun getGameByIdOrThrow(id: UUID) =
+        _games[id] ?: throw GameNotFoundException("Game with id: $id has been not found")
 }
