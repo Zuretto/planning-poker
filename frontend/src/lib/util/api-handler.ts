@@ -153,7 +153,7 @@ export const uploadJiraCSV = (gameId: string, file: File): Promise<void> => {
         }
     })
         .then(async response => {
-            if (response.status === 404) {
+            if (response.status === 404 || response.status === 400) {
                 const gottenResponse = await response.json();
                 throw gottenResponse.message;
             }
