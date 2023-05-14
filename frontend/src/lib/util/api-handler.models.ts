@@ -21,13 +21,13 @@ export type GameResponse = {
 };
 
 export type UserStoryResponse = {
-    key: string;
+    id: number;
     name: string;
     tasks: TaskResponse[];
 }
 
 export type TaskResponse = {
-    key: string;
+    id: number;
     description: string;
 }
 

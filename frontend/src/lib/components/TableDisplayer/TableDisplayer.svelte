@@ -7,7 +7,12 @@
     import Toast from "../Toast/Toast.svelte";
     import type { UserStoryResponse } from "../../util/api-handler.models";
 
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+
+
     export let tableId: string;
+
+    const exportLink = `${baseUrl}/poker_api/v1/table/${tableId}/user_stories`
 
     const cards: Card[] = (Object.values(Card) as Card[])
         .filter(card => card !== Card.NONE);
@@ -61,7 +66,7 @@
     }
 
     let currentUserStory: UserStoryResponse = {
-        key: "",
+        id: null,
         name: "",
         tasks: []
     }
@@ -74,7 +79,7 @@
     function addTask(event) {
         if (event.key === "Enter" && event.target.textContent !== "") {
             const newTask = {
-                key: currentUserStory.tasks.length.toString(),
+                id: null,
                 description: event.target.textContent
             };
             currentUserStory.tasks = [...currentUserStory.tasks, newTask];
@@ -95,7 +100,7 @@
 
     function updateTask(taskIndex, event) {
         currentUserStory.tasks[taskIndex].description = event.target.textContent;
-        uploadUserStories()
+        uploadUserStories();
     }
 
     function preventNewLines(event) {
@@ -147,6 +152,7 @@
                     {/each}
                     <li contenteditable="true" on:keydown={(event) => addTask(event)} on:keydown={preventNewLines}></li>
                 </ul>
+                <a href={exportLink}><button class="standard-button">Export to Jira</button></a>
             </div>
         </div>
         <button class="submit" on:click={submitCard} {disabled}>Submit</button>

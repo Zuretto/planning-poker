@@ -11,6 +11,7 @@ import pl.poznan.put.tsd.planningpoker.backend.resources.MessageHandler
 import pl.poznan.put.tsd.planningpoker.backend.resources.MessageType
 import pl.poznan.put.tsd.planningpoker.backend.resources.requests.Card
 import pl.poznan.put.tsd.planningpoker.backend.resources.responses.GameResponse.Companion.toResponseModel
+import java.io.File
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -80,7 +81,7 @@ class GamesService(
         getGameByIdOrThrow(id).run {
             resetCards()
             round++
-            if (round == userStories.size) userStories = userStories + UserStory("", "", mutableListOf())
+            if (round == userStories.size) userStories = userStories + UserStory(null, "", mutableListOf())
             sendBroadcast()
         }
     }
@@ -103,6 +104,17 @@ class GamesService(
             game.userStories = csvParser.readCsv(csvFile)
         }
         game.sendBroadcast()
+    }
+
+    @Throws(GameNotFoundException::class)
+    suspend fun exportUserStories(id: UUID): File {
+        val game = getGameByIdOrThrow(id)
+        val file: File
+
+        game.mutex.withLock {
+            file = csvParser.writeToCsv(game.userStories)
+        }
+        return file
     }
 
     fun Game.sendBroadcast() {
