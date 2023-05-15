@@ -23,7 +23,7 @@ class CsvParser {
                 readAllWithHeaderAsSequence().forEach {
                     if (it["Issue Type"].equals("Story"))
                         userStories.add(UserStory(it["Issue id"]!!.toInt(), it["Summary"]!!, mutableListOf(),
-                            it["Original estimate"]?.toInt()
+                            it["Original estimate"]?.toIntOrNull()
                         ))
                     else
                         tasks.add(Task(it["Issue id"]!!.toInt(), it["Summary"]!!, it["Parent"]!!.toInt(),
