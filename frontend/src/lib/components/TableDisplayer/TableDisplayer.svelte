@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { usernameStore } from "../../util/store";
-    import { joinTable, selectCard, setUserStories } from "../../util/api-handler";
-    import { Card } from "../../util/enums.js";
+    import {usernameStore} from "../../util/store";
+    import {joinTable, selectCard, setUserStories} from "../../util/api-handler";
+    import {Card} from "../../util/enums.js";
     import TableView from "../TableView/TableView.svelte";
     import SelectCard from "./SelectCard.svelte";
     import Toast from "../Toast/Toast.svelte";
-    import type { UserStoryResponse } from "../../util/api-handler.models";
+    import type {UserStoryResponse} from "../../util/api-handler.models";
 
     const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -94,6 +94,21 @@
         setUserStories(tableId, userStories).catch(errorMessage => toast(errorMessage));
     }
 
+    function removeUserStory() {
+        if (round < userStories.length - 1) {
+            userStories = userStories.slice(0, round).concat(userStories.slice(round + 1));
+            currentUserStory = userStories[round];
+        } else {
+            currentUserStory = {
+                key: "",
+                name: "",
+                tasks: []
+            };
+        }
+        handleReset();
+        uploadUserStories();
+    }
+
     function updateTitle(event) {
         currentUserStory.name = event.target.textContent;
         uploadUserStories();
@@ -134,8 +149,18 @@
                            userStoriesNotifier="{handleUserStories}"/>
             </div>
             <div class="user-story-view">
-                <h2 contenteditable="true" class:emptyTitle={currentUserStory.name.length === 0}
-                    on:blur={() => updateTitle(event)}>{@html currentUserStory.name}</h2>
+                <div class="user-story">
+                    <h2 contenteditable="true" class:emptyTitle={currentUserStory.name.length === 0}
+                        on:blur={(event) => updateTitle(event)}>{@html currentUserStory.name}</h2>
+                    <button on:click="{removeUserStory}" class="inline-button">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="feather feather-x">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
                 <ul>
                     {#each currentUserStory.tasks as task, taskIndex}
                         <div class="task-item">
@@ -246,11 +271,28 @@
         cursor: pointer;
     }
 
+    .user-story {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: space-between;
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
+
+    .user-story > h2 {
+        flex: 1;
+    }
+
     .task-item {
         display: flex;
         flex-direction: row;
-        align-items: center;
         justify-content: space-between;
+    }
+
+    .task-item > li {
+        flex: 1;
+        text-align: start;
     }
 
     .feather {
