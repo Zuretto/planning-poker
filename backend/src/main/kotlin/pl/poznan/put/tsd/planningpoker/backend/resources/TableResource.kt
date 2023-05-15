@@ -94,6 +94,17 @@ class TableResource(private val gamesService: GamesService) {
     /**
      * Responses:
      * 200 - OK
+     * 404 - No such game
+     */
+    @DeleteMapping("user_stories")
+    suspend fun deleteUserStories(@RequestBody request: UserStoriesRequest) : ResponseEntity<Unit> {
+        gamesService.updateUserStories(request.gameId, request.userStories)
+        return ResponseEntity(Unit, HttpStatus.OK)
+    }
+
+    /**
+     * Responses:
+     * 200 - OK
      * 400 - Invalid file
      * 404 - No such game
      */
