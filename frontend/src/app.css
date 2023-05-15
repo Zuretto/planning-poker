@@ -79,6 +79,7 @@ input[type=text]:focus {
     transition: outline-color 0.25s;
 }
 
+.standard-button,
 input[type=submit] {
     border-radius: 20px;
     border: 1px solid transparent;
@@ -92,10 +93,13 @@ input[type=submit] {
     align-self: center;
 }
 
+.standard-button:hover,
 input[type=submit]:hover {
     border-color: #646cff;
 }
 
+.standard-button:focus,
+.standard-button:focus-visible,
 input[type=submit]:focus,
 input[type=submit]:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;

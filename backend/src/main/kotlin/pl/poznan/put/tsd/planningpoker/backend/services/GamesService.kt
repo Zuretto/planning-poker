@@ -11,9 +11,11 @@ import pl.poznan.put.tsd.planningpoker.backend.resources.MessageHandler
 import pl.poznan.put.tsd.planningpoker.backend.resources.MessageType
 import pl.poznan.put.tsd.planningpoker.backend.resources.requests.Card
 import pl.poznan.put.tsd.planningpoker.backend.resources.responses.GameResponse.Companion.toResponseModel
+import java.io.File
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.math.round
 
 @Service
 class GamesService(
@@ -30,7 +32,8 @@ class GamesService(
      */
     suspend fun createGame(username: String): UUID {
         val id = uuidProvider.generateUUID()
-        _games[id] = Game(id = id, creator = username, players = mutableMapOf(username to Player(username)), userStories = listOf())
+        _games[id] = Game(id = id, creator = username, players = mutableMapOf(username to Player(username)),
+            userStories = listOf())
         return id
     }
 
@@ -78,9 +81,11 @@ class GamesService(
     @Throws(GameNotFoundException::class)
     suspend fun nextRound(id: UUID) {
         getGameByIdOrThrow(id).run {
+            calculateEstimation()
             resetCards()
             round++
-            if (round == userStories.size) userStories = userStories + UserStory("", "", mutableListOf())
+            if (round == userStories.size) userStories = userStories + UserStory(null, "", mutableListOf(),
+                null)
             sendBroadcast()
         }
     }
@@ -103,6 +108,19 @@ class GamesService(
             game.userStories = csvParser.readCsv(csvFile)
         }
         game.sendBroadcast()
+    }
+
+    @Throws(GameNotFoundException::class)
+    suspend fun exportUserStories(id: UUID): File {
+        val game = getGameByIdOrThrow(id)
+        val file: File
+
+        if (game.areCardsVisible)
+            game.calculateEstimation()
+        game.mutex.withLock {
+            file = csvParser.writeToCsv(game.userStories)
+        }
+        return file
     }
 
     fun Game.sendBroadcast() {
@@ -131,6 +149,20 @@ class GamesService(
             )
         }
         areCardsVisible = true
+    }
+
+    private suspend fun Game.calculateEstimation() = mutex.withLock {
+        var sum = 0F
+        var numberOfPlayers = 0F
+        for (player: Player in players.values)
+            if (player.selectedCard != Card.QUESTION_MARK) {
+                sum += player.selectedCard.toInt()
+                numberOfPlayers++
+            }
+        userStories[round].estimationAverage = if (numberOfPlayers > 0)
+            round(sum/numberOfPlayers).toInt()
+        else
+            null
     }
 
     @Throws(GameNotFoundException::class)

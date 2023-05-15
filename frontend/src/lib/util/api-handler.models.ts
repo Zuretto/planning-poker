@@ -21,13 +21,14 @@ export type GameResponse = {
 };
 
 export type UserStoryResponse = {
-    key: string;
+    id: number;
     name: string;
     tasks: TaskResponse[];
+    estimationAverage: number;
 }
 
 export type TaskResponse = {
-    key: string;
+    id: number;
     description: string;
 }
 
