@@ -54,30 +54,34 @@
     };
 
     let round = 0;
-    let userStories = []
+    let userStories = [];
 
     const handleRound = (newRound: number): void => {
         round = newRound;
         if (round < userStories.length) currentUserStory = userStories[round];
-    }
+    };
+
     const handleUserStories = (newUserStories: UserStoryResponse[]): void => {
         userStories = newUserStories;
         if (round < userStories.length) currentUserStory = userStories[round];
-    }
+    };
 
     let currentUserStory: UserStoryResponse = {
         id: null,
         name: "",
         tasks: [],
-        estimationAverage: null
-    }
+        estimationAverage: null,
+    };
 
-    function removeTask(taskIndex) {
+    const removeTask = (taskIndex) => {
+        if (!confirm('Are you sure you want to drop Task?')) {
+            return;
+        }
         currentUserStory.tasks = currentUserStory.tasks.slice(0, taskIndex).concat(currentUserStory.tasks.slice(taskIndex + 1));
         uploadUserStories()
-    }
+    };
 
-    function addTask(event) {
+    const addTask = (event) => {
         if (event.key === "Enter" && event.target.textContent !== "") {
             const newTask = {
                 id: null,
@@ -87,43 +91,47 @@
             event.target.textContent = "";
         }
         uploadUserStories()
-    }
+    };
 
-    function uploadUserStories() {
+    const uploadUserStories = () => {
         userStories[round] = currentUserStory;
         setUserStories(tableId, userStories).catch(errorMessage => toast(errorMessage));
-    }
+    };
 
-    function removeUserStory() {
+    const removeUserStory = () => {
+        if (!confirm('Are you sure you want to drop User Story?')) {
+            return;
+        }
         if (round < userStories.length - 1) {
             userStories = userStories.slice(0, round).concat(userStories.slice(round + 1));
             currentUserStory = userStories[round];
         } else {
             currentUserStory = {
-                key: "",
+                id: null,
                 name: "",
-                tasks: []
+                tasks: [],
+                estimationAverage: null,
             };
         }
         handleReset();
         uploadUserStories();
-    }
+    };
 
-    function updateTitle(event) {
+    const updateTitle = (event) => {
         currentUserStory.name = event.target.textContent;
         uploadUserStories();
-    }
+    };
 
-    function updateTask(taskIndex, event) {
+    const updateTask = (taskIndex, event) => {
         currentUserStory.tasks[taskIndex].description = event.target.textContent;
         uploadUserStories();
-    }
+    };
 
-    function preventNewLines(event) {
+    const preventNewLines = (event) => {
         if (event.key === "Enter") {
             event.preventDefault();
         }
-    }
+    };
 
 </script>
 
@@ -178,7 +186,9 @@
                     {/each}
                     <li contenteditable="true" on:keydown={(event) => addTask(event)} on:keydown={preventNewLines}></li>
                 </ul>
-                <a href={exportLink}><button class="standard-button">Export to Jira</button></a>
+                <a href={exportLink}>
+                    <button class="standard-button">Export to Jira</button>
+                </a>
             </div>
         </div>
         <button class="submit" on:click={submitCard} {disabled}>Submit</button>
