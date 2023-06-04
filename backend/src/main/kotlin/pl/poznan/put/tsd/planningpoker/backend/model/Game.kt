@@ -5,7 +5,6 @@ import java.util.UUID
 
 data class Game(
     val id: UUID,
-    val players: MutableMap<String, Player> = mutableMapOf(),
     val creator: String,
     var areCardsVisible: Boolean = false,
     var userStories: List<UserStory>,

@@ -55,9 +55,9 @@ class MessageHandler(val gamesService: GamesService) :
                     session.sendMessageObject(MessageType.Error, it)
                     session.close(CloseStatus.POLICY_VIOLATION)
                 },
-                ifRight = { (game, player) ->
-                    player.session = session
-                    session.sendMessageObject(MessageType.Game, game.toResponseModel())
+                ifRight = { (game, playerGameConnection) ->
+                    playerGameConnection.session = session
+                    session.sendMessageObject(MessageType.Game, game.toResponseModel(gamesService))
                 }
             )
         } catch (e: IOException) {
@@ -68,7 +68,7 @@ class MessageHandler(val gamesService: GamesService) :
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
         super.afterConnectionClosed(session, status)
         val gameAndPlayerEither = getGameAndPlayer(session)
-        gameAndPlayerEither.onRight { (_, player) -> player.session = null }
+        gameAndPlayerEither.onRight { (_, playerGameConnection) -> playerGameConnection.session = null }
     }
 
     fun WebSocketSession.sendMessageObject(type: MessageType, value: Any) {
@@ -101,17 +101,17 @@ class MessageHandler(val gamesService: GamesService) :
     }
 
     private fun Game.findPlayer(username: String) = either {
-        val player = this@findPlayer.players[username]
-        ensureNotNull(player) { ValidationError.InvalidUsername }
-        player
+        val playerGameConnection = gamesService.playerGameConnections.filter { it.game.id == id && it.player.name == username }
+        ensure(playerGameConnection.isNotEmpty()) { ValidationError.InvalidUsername }
+        playerGameConnection[0]
     }
 
     private fun getGameAndPlayer(session: WebSocketSession) = either {
         val parameters = session.uri.getParameters().bind()
         val uuid = parameters.getValue("game_id").convertToUUID().bind()
         val game = findGame(uuid).bind()
-        val player = game.findPlayer(parameters.getValue("username")).bind()
-        game to player
+        val playerGameConnection = game.findPlayer(parameters.getValue("username")).bind()
+        game to playerGameConnection
     }
 }
 

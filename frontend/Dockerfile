@@ -3,6 +3,7 @@ FROM node:16 AS build
 WORKDIR /app
 
 ENV POKER_BACKEND_BASE_URL "http://localhost:8080"
+ENV POKER_BACKEND_WEBSOCKET_BASE_URL "ws://localhost:8080"
 
 COPY package.json ./
 COPY package-lock.json ./

@@ -26,14 +26,16 @@ class GamesService(
     private val _games = ConcurrentHashMap<UUID, Game>()
     val games: Map<UUID, Game> = _games
 
+    val playerGameConnections: MutableList<PlayerGameConnection> = mutableListOf()
+
     /**
      * Creates game
      * @return game's UUID
      */
     suspend fun createGame(username: String): UUID {
         val id = uuidProvider.generateUUID()
-        _games[id] = Game(id = id, creator = username, players = mutableMapOf(username to Player(username)),
-            userStories = listOf())
+        _games[id] = Game(id = id, creator = username, userStories = listOf())
+        playerGameConnections.add(PlayerGameConnection(Player(username, null), _games[id]!!))
         return id
     }
 
@@ -42,8 +44,9 @@ class GamesService(
         val game = getGameByIdOrThrow(id)
 
         game.mutex.withLock {
-            if (username in game.players) throw UsernameTakenException("Username: $username is already taken")
-            game.players[username] = Player(username)
+            if (username in playerGameConnections.filter { it.game.id == game.id }.map { it.player.name })
+                throw UsernameTakenException("Username: $username is already taken")
+            playerGameConnections.add(PlayerGameConnection(Player(username, null), game))
             game.areCardsVisible = false
         }
         game.sendBroadcast()
@@ -54,10 +57,14 @@ class GamesService(
         val game = getGameByIdOrThrow(id)
 
         game.mutex.withLock {
-            val player = game.players[username]
-                ?: throw PlayerDoesNotExistException("Player with username: $username does not exist")
-            game.players[username] = player.copy(selectedCard = card)
-            game.areCardsVisible = game.players.all { it.value.selectedCard != Card.NONE }
+            val playerGameConnection =
+                playerGameConnections.filter { it.game.id == game.id && it.player.name == username }
+            if (playerGameConnection.isEmpty())
+                throw PlayerDoesNotExistException("Player with username: $username does not exist")
+            val index = playerGameConnections.indexOf(playerGameConnection[0])
+            playerGameConnections[index].selectedCard = card
+            game.areCardsVisible =
+                playerGameConnections.filter { it.game.id == game.id }.all { it.selectedCard != Card.NONE }
         }
         game.sendBroadcast()
     }
@@ -84,8 +91,10 @@ class GamesService(
             calculateEstimation()
             resetCards()
             round++
-            if (round == userStories.size) userStories = userStories + UserStory(null, "", mutableListOf(),
-                null)
+            if (round == userStories.size) userStories = userStories + UserStory(
+                null, "", mutableListOf(),
+                null
+            )
             sendBroadcast()
         }
     }
@@ -125,9 +134,9 @@ class GamesService(
 
     fun Game.sendBroadcast() {
         try {
-            players.values.forEach {
+            playerGameConnections.filter { it.game.id == id }.forEach {
                 with(messageHandler) {
-                    it.session?.sendMessageObject(MessageType.Game, toResponseModel())
+                    it.session?.sendMessageObject(MessageType.Game, toResponseModel(gamesService))
                 }
             }
         } catch (e: IOException) {
@@ -136,17 +145,16 @@ class GamesService(
     }
 
     private suspend fun Game.resetCards() = mutex.withLock {
-        players.entries.forEach { (key, player) ->
-            players[key] = player.copy(selectedCard = Card.NONE)
+        playerGameConnections.filter { it.game.id == id }.forEach {
+            it.selectedCard = Card.NONE
         }
         areCardsVisible = false
     }
 
     private suspend fun Game.flipCards() = mutex.withLock {
-        players.entries.forEach { (key, player) ->
-            players[key] = player.copy(
-                selectedCard = if (player.selectedCard == Card.NONE) Card.QUESTION_MARK else player.selectedCard
-            )
+        playerGameConnections.filter { it.game.id == id }.forEach {
+            if (it.selectedCard == Card.NONE)
+                it.selectedCard = Card.QUESTION_MARK
         }
         areCardsVisible = true
     }
@@ -154,13 +162,14 @@ class GamesService(
     private suspend fun Game.calculateEstimation() = mutex.withLock {
         var sum = 0F
         var numberOfPlayers = 0F
-        for (player: Player in players.values)
-            if (player.selectedCard != Card.QUESTION_MARK) {
-                sum += player.selectedCard.toInt()
+        playerGameConnections.filter { it.game.id == id }.forEach {
+            if (it.selectedCard != Card.QUESTION_MARK) {
+                sum += it.selectedCard.toInt()
                 numberOfPlayers++
             }
+        }
         userStories[round].estimationAverage = if (numberOfPlayers > 0)
-            round(sum/numberOfPlayers).toInt()
+            round(sum / numberOfPlayers).toInt()
         else
             null
     }
