@@ -2,18 +2,14 @@
     import { createTable, uploadJiraCSV } from '../../util/api-handler';
     import { navigate } from "svelte-routing";
     import Toast from "../Toast/Toast.svelte";
+    import { accountStore } from "../../util/store";
 
-    let username = '';
     let isFileUploadSelected = false;
     let files: File;
     let toast: (message) => void;
 
     const createBoard = (): void => {
-        if (!username || !username.trim().length) {
-            return;
-        }
-
-        createTable(username)
+        createTable($accountStore.username)
             .then((tableResponse) => {
                 if (isFileUploadSelected) {
                     return uploadJiraCSV(tableResponse.id, files[0]).then(() => tableResponse);
@@ -30,11 +26,7 @@
 
 <Toast bind:toast="{toast}"/>
 <div class="text-column">
-    <h1> Create a new board </h1>
-    <h3> Please enter your name below to proceed: </h3>
     <form on:submit|preventDefault={createBoard}>
-        <input name="username" type="text" id="nickname-input" placeholder="Enter your nickname"
-               bind:value={username}><br>
         <input type="checkbox" bind:checked={isFileUploadSelected}> Import Jira File<br>
         {#if isFileUploadSelected}
             <input type="file" accept="text/csv" bind:files><br><br>

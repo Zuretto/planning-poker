@@ -1,5 +1,6 @@
 <script lang="ts">
-    import {usernameStore} from "../../util/store";
+    // import {usernameStore} from "../../util/store";
+    import {accountStore} from "../../util/store";
     import {joinTable, selectCard, setUserStories} from "../../util/api-handler";
     import {Card} from "../../util/enums.js";
     import TableView from "../TableView/TableView.svelte";
@@ -30,11 +31,13 @@
             return;
         }
         joinTable(usernameInput, tableId)
+            // TODO after login's done remove this then!
+            .then(() => accountStore.set({accessToken: '', username: usernameInput}))
             .catch(errorMessage => toast(errorMessage));
     };
 
     const submitCard = (): void => {
-        selectCard($usernameStore, tableId, selectedCard).then(() => {
+        selectCard($accountStore.username, tableId, selectedCard).then(() => {
             disabled = true;
             submitted = true;
         }).catch(errorMessage => toast(errorMessage));
@@ -136,10 +139,11 @@
 </script>
 
 <Toast bind:toast="{toast}"/>
-{#if $usernameStore === null}
+{#if $accountStore === null}
     <div class="text-column">
         <h1> Welcome to the board! </h1>
         <h3> Please enter your name below to proceed: </h3>
+        <!--    TODO <LoginRegister/> instead of this    -->
         <form on:submit|preventDefault={joinBoard}>
             <input name="username" type="text" id="nickname-input" placeholder="Enter your nickname"
                    bind:value={usernameInput}><br>
@@ -150,7 +154,7 @@
     <div class="wrapper">
         <div class="table-and-user-story">
             <div class="cards-table">
-                <TableView username="{$usernameStore}"
+                <TableView username="{$accountStore.username}"
                            tableId="{tableId}"
                            resetNotifier="{handleReset}"
                            roundNotifier="{handleRound}"
@@ -205,7 +209,6 @@
         display: flex;
         flex-direction: column;
         height: 100%;
-        width: fit-content;
         margin: auto;
         align-items: stretch;
     }
@@ -218,7 +221,7 @@
 
     .cards-table {
         flex: 1 1 auto;
-        width: calc(min(calc(90rem), 100vw - 64px) / 3 * 1);
+        width: 33%;
         border-radius: 20px;
         border: 1px solid transparent;
         outline: 2px solid #646cff;
@@ -226,7 +229,7 @@
 
     .user-story-view {
         flex: 5 1 auto;
-        width: calc(min(calc(90rem), 100vw - 64px) / 3 * 2);
+        width: 66%;
         margin-left: 1rem;
         margin-right: 1rem;
     }
@@ -239,7 +242,6 @@
         flex-shrink: 0;
         gap: 1rem;
         align-self: stretch;
-        width: min(calc(90rem), 100vw - 64px);
     }
 
     .submit {

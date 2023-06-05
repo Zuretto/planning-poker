@@ -1,9 +1,30 @@
-import type {GameResponse, TableResponse, UserStoryResponse, ValidationError} from './api-handler.models';
-import { usernameStore } from "./store";
+import type {
+    GameHistoryResponse,
+    GameResponse,
+    TableResponse,
+    UserStoryResponse,
+    ValidationError
+} from './api-handler.models';
 import type { Card } from "./enums";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 const websocketBaseUrl = import.meta.env.VITE_WEBSOCKET_BASE_URL;
+
+export const getTables = (nickname: string): Promise<GameHistoryResponse[]> => {
+    return fetch(`${baseUrl}/poker_api/v1/player/${nickname}/history`, {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+        }
+    })
+        .then(async response => {
+            if (response.status === 404) {
+                const gottenResponse = await response.json();
+                throw gottenResponse.message;
+            }
+            return response.json();
+        })
+}
 
 export const createTable = (nickname: string): Promise<TableResponse> => {
     return fetch(`${baseUrl}/poker_api/v1/table`, {
@@ -16,10 +37,7 @@ export const createTable = (nickname: string): Promise<TableResponse> => {
             Accept: 'application/json',
         }
     })
-        .then(response => {
-            usernameStore.set(nickname);
-            return response.json() as Promise<TableResponse>;
-        });
+        .then(response => response.json() as Promise<TableResponse>);
 };
 
 export const joinTable = (nickname: string, gameId: string): Promise<void> => {
@@ -39,7 +57,6 @@ export const joinTable = (nickname: string, gameId: string): Promise<void> => {
                 throw gottenResponse.message;
             }
         })
-        .then(() => usernameStore.set(nickname));
 }
 
 export const selectCard = (nickname: string, gameId: string, card: Card): Promise<void> => {

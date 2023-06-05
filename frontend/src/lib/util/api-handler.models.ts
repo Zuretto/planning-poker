@@ -20,11 +20,18 @@ export type GameResponse = {
     };
 };
 
+export type GameHistoryResponse = {
+    creator: string;
+    gameId: string;
+    players: string[];
+    userStories: UserStoryResponse[];
+}
+
 export type UserStoryResponse = {
     id: number;
     name: string;
     tasks: TaskResponse[];
-    estimationAverage: number;
+    estimationAverage?: number;
 }
 
 export type TaskResponse = {
