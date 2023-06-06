@@ -4,16 +4,18 @@ import kotlinx.coroutines.sync.withLock
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import pl.poznan.put.tsd.planningpoker.backend.components.CsvParser
 import pl.poznan.put.tsd.planningpoker.backend.components.UUIDProvider
 import pl.poznan.put.tsd.planningpoker.backend.model.*
-import pl.poznan.put.tsd.planningpoker.backend.components.CsvParser
 import pl.poznan.put.tsd.planningpoker.backend.resources.MessageHandler
 import pl.poznan.put.tsd.planningpoker.backend.resources.MessageType
 import pl.poznan.put.tsd.planningpoker.backend.resources.requests.Card
+import pl.poznan.put.tsd.planningpoker.backend.resources.responses.GameHistoryResponse
+import pl.poznan.put.tsd.planningpoker.backend.resources.responses.GameHistoryResponse.Companion.toGameHistoryResponse
 import pl.poznan.put.tsd.planningpoker.backend.resources.responses.GameResponse.Companion.toResponseModel
 import java.io.File
 import java.io.IOException
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.round
 
@@ -21,7 +23,8 @@ import kotlin.math.round
 class GamesService(
     private val uuidProvider: UUIDProvider,
     @Lazy private val messageHandler: MessageHandler,
-    private val csvParser: CsvParser
+    private val csvParser: CsvParser,
+    private val playersService: PlayersService
 ) {
     private val _games = ConcurrentHashMap<UUID, Game>()
     val games: Map<UUID, Game> = _games
@@ -32,21 +35,24 @@ class GamesService(
      * Creates game
      * @return game's UUID
      */
+    @Throws(PlayerDoesNotExistException::class)
     suspend fun createGame(username: String): UUID {
+        val player = playersService.getPlayerForLogin(username)
         val id = uuidProvider.generateUUID()
         _games[id] = Game(id = id, creator = username, userStories = listOf())
-        playerGameConnections.add(PlayerGameConnection(Player(username, null), _games[id]!!))
+        playerGameConnections.add(PlayerGameConnection(player, _games[id]!!))
         return id
     }
 
-    @Throws(GameNotFoundException::class, UsernameTakenException::class)
+    @Throws(GameNotFoundException::class, UsernameTakenException::class, PlayerDoesNotExistException::class)
     suspend fun joinGame(id: UUID, username: String) {
         val game = getGameByIdOrThrow(id)
+        val player = playersService.getPlayerForLogin(username)
 
         game.mutex.withLock {
             if (username in playerGameConnections.filter { it.game.id == game.id }.map { it.player.name })
                 throw UsernameTakenException("Username: $username is already taken")
-            playerGameConnections.add(PlayerGameConnection(Player(username, null), game))
+            playerGameConnections.add(PlayerGameConnection(player, game))
             game.areCardsVisible = false
         }
         game.sendBroadcast()
@@ -172,6 +178,12 @@ class GamesService(
             round(sum / numberOfPlayers).toInt()
         else
             null
+    }
+
+    @Throws(PlayerDoesNotExistException::class)
+    suspend fun getPlayerHistory(username: String): List<GameHistoryResponse> {
+        val history = playerGameConnections.filter { it.player.name == username }.map { it.game }
+        return history.map { it.toGameHistoryResponse(this) }
     }
 
     @Throws(GameNotFoundException::class)

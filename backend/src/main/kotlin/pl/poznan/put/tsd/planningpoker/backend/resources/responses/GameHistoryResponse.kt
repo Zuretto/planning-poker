@@ -12,7 +12,7 @@ data class GameHistoryResponse(
     val userStories: List<UserStoryResponse>,
 ) {
     companion object {
-        fun Game.toResponseModel(gamesService: GamesService): GameHistoryResponse = GameHistoryResponse(
+        fun Game.toGameHistoryResponse(gamesService: GamesService): GameHistoryResponse = GameHistoryResponse(
             creator = creator,
             gameId = id,
             players = gamesService.playerGameConnections.filter { it.game.id == id }.map { it.player.name },
