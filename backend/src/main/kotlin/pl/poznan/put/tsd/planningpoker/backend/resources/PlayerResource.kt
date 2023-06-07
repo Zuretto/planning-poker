@@ -28,4 +28,10 @@ class PlayerResource(
         playersService.registerPlayer(player.name, player.password)
         return ResponseEntity(Unit, HttpStatus.OK)
     }
+
+    @PostMapping("login")
+    suspend fun login(@RequestBody player: Player): ResponseEntity<Unit> {
+        playersService.login(player.name, player.password)
+        return ResponseEntity(Unit, HttpStatus.OK)
+    }
 }

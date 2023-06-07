@@ -1,7 +1,6 @@
 import { writable } from 'svelte/store'
 
 export type UserInformation = {
-    accessToken: string;
     username: string;
 };
 
