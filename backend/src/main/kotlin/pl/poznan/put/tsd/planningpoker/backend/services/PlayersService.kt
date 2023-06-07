@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service
 import pl.poznan.put.tsd.planningpoker.backend.model.Player
 import pl.poznan.put.tsd.planningpoker.backend.model.PlayerDoesNotExistException
 import pl.poznan.put.tsd.planningpoker.backend.model.UsernameTakenException
+import pl.poznan.put.tsd.planningpoker.backend.model.WrongPasswordException
 
 @Service
 class PlayersService {
@@ -21,5 +22,14 @@ class PlayersService {
     @Throws(PlayerDoesNotExistException::class)
     suspend fun getPlayerForLogin(login: String): Player {
         return players.find { it.name == login } ?: throw PlayerDoesNotExistException("Player with login: $login does not exist")
+    }
+
+    @Throws(PlayerDoesNotExistException::class)
+    suspend fun login(login: String, password: String) {
+        val player = players.find { it.name == login }
+            ?: throw PlayerDoesNotExistException("Player with login: $login does not exist")
+        if (player.password != password) {
+            throw WrongPasswordException("Player with login: $login does not exist")
+        }
     }
 }

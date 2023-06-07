@@ -59,7 +59,7 @@ a:hover {
     margin: 0 auto;
 }
 
-input[type=text] {
+input[type=text], input[type=password] {
     width:250px;
     padding:10px;
     box-sizing: border-box;
@@ -73,7 +73,7 @@ input[type=text] {
     transition: outline-color 0.25s;
 }
 
-input[type=text]:focus {
+input[type=text]:focus, input[type=password]:focus {
     border: 1px solid transparent;
     outline: 2px solid #646cff;
     transition: outline-color 0.25s;
