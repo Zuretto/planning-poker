@@ -29,7 +29,7 @@ class PlayersService {
         val player = players.find { it.name == login }
             ?: throw PlayerDoesNotExistException("Player with login: $login does not exist")
         if (player.password != password) {
-            throw WrongPasswordException("Player with login: $login does not exist")
+            throw WrongPasswordException("Password for player: $login is incorrect")
         }
     }
 }
