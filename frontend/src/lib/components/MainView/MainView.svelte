@@ -37,6 +37,7 @@
         <h1> Dashboard </h1>
 
         <CreateTable/>
+
         <TablesHistory/>
     {/if}
 </section>
@@ -47,14 +48,11 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        gap: 1rem;
         flex: 0.6;
     }
 
     h1 {
         width: 100%;
-    }
-
-    button {
-        margin: 30px;
     }
 </style>

@@ -25,6 +25,7 @@
     let selectedCard: Card = Card.NONE;
     let submitted: boolean = false;
     let disabled: boolean = true;
+    let isInTable : boolean = false;
 
     const joinBoard = (): void => {
         if (!usernameInput || !usernameInput.trim().length) {
@@ -33,6 +34,7 @@
         joinTable(usernameInput, tableId)
             // TODO after login's done remove this then!
             .then(() => accountStore.set({accessToken: '', username: usernameInput}))
+            .then(() => isInTable = true)
             .catch(errorMessage => toast(errorMessage));
     };
 
@@ -136,10 +138,16 @@
         }
     };
 
+    if ($accountStore !== null) {
+        joinTable($accountStore.username, tableId)
+            .then(() => isInTable = true)
+            .catch(errorMessage => toast(errorMessage));
+    }
+
 </script>
 
 <Toast bind:toast="{toast}"/>
-{#if $accountStore === null}
+{#if !isInTable}
     <div class="text-column">
         <h1> Welcome to the board! </h1>
         <h3> Please enter your name below to proceed: </h3>
