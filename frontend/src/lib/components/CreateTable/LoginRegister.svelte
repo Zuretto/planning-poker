@@ -7,6 +7,7 @@
     let username: string;
     let password: string;
     let confirmPassword: string;
+    let termsAndConditions: boolean;
 
     enum ActionType {
         FORM,
@@ -40,6 +41,10 @@
         }
         if (confirmPassword !== password) {
             toast("Passwords do not match");
+            return;
+        }
+        if (!termsAndConditions) {
+            toast("Please accept the terms and conditions");
             return;
         }
         register(username, password)
@@ -86,6 +91,8 @@
                    bind:value={password}><br>
             <input name="password" type="password" placeholder="Confirm your password"
                    bind:value={confirmPassword}><br>
+            <input name="terms" type="checkbox"
+                   bind:checked={termsAndConditions}> I agree to the <a href="/terms" target="_blank">Terms and Conditions</a><br>
             <input type="submit" value="Register">
         </form>
         <br/>
