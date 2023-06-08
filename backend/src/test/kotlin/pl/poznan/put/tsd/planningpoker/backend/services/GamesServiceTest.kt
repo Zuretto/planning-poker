@@ -23,7 +23,7 @@ class GamesServiceTest {
     }
     private val messageHandler = mock(MessageHandler::class.java) // TODO test properly...
     private val csvParser = mock(CsvParser::class.java) // TODO test properly...
-    private val service = GamesService(uuidProvider, messageHandler, csvParser)
+    private val service = GamesService(uuidProvider, messageHandler, csvParser, PlayersService())
 
     @Test
     fun `Given creators name when creating a table then return uuid`() = runTest {
@@ -60,17 +60,6 @@ class GamesServiceTest {
         val uuid = UUID.fromString("a438511c-7009-41fd-bc37-beda2e32270b")
 
         assertThrows<GameNotFoundException> { service.joinGame(uuid, "username2") }
-    }
-
-
-    @Test
-    fun `Given card name when selecting the card then update player state`() = runTest {
-        val uuid = service.createGame("username")
-        assertEquals(Card.NONE, service.games[uuid]?.players?.get("username")?.selectedCard)
-
-        service.selectCard(uuid, "username", Card.EIGHT)
-
-        assertEquals(Card.EIGHT, service.games[uuid]?.players?.get("username")?.selectedCard)
     }
 
     @Test

@@ -177,6 +177,47 @@ export const uploadJiraCSV = (gameId: string, file: File): Promise<void> => {
         })
 }
 
+export const register = (nickname: string, password: string): Promise<void> => {
+    return fetch(`${baseUrl}/poker_api/v1/register`, {
+        method: 'POST',
+        body: JSON.stringify({
+            name: nickname,
+            password: password,
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        }
+    })
+        .then(async response => {
+            if (response.status === 409) {
+                const gottenResponse = await response.json();
+                throw gottenResponse.message;
+            }
+        })
+}
+
+export const login = (nickname: string, password: string): Promise<void> => {
+    return fetch(`${baseUrl}/poker_api/v1/login`, {
+        method: 'POST',
+        body: JSON.stringify({
+            name: nickname,
+            password: password,
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        }
+    })
+        .then(async response => {
+            if (response.status === 401 || response.status === 404) {
+                const gottenResponse = await response.json();
+                throw gottenResponse.message;
+            }
+        })
+}
+
+
 /**
  *
  * Establishes connection with the websocket endpoint.

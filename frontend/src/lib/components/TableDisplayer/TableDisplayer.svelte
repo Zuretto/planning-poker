@@ -7,6 +7,7 @@
     import SelectCard from "./SelectCard.svelte";
     import Toast from "../Toast/Toast.svelte";
     import type {UserStoryResponse} from "../../util/api-handler.models";
+    import LoginRegister from "../CreateTable/LoginRegister.svelte";
 
     const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -20,23 +21,11 @@
 
 
     let toast: (message) => void;
-    let usernameInput: string;
 
     let selectedCard: Card = Card.NONE;
     let submitted: boolean = false;
     let disabled: boolean = true;
     let isInTable : boolean = false;
-
-    const joinBoard = (): void => {
-        if (!usernameInput || !usernameInput.trim().length) {
-            return;
-        }
-        joinTable(usernameInput, tableId)
-            // TODO after login's done remove this then!
-            .then(() => accountStore.set({accessToken: '', username: usernameInput}))
-            .then(() => isInTable = true)
-            .catch(errorMessage => toast(errorMessage));
-    };
 
     const submitCard = (): void => {
         selectCard($accountStore.username, tableId, selectedCard).then(() => {
@@ -148,16 +137,7 @@
 
 <Toast bind:toast="{toast}"/>
 {#if !isInTable}
-    <div class="text-column">
-        <h1> Welcome to the board! </h1>
-        <h3> Please enter your name below to proceed: </h3>
-        <!--    TODO <LoginRegister/> instead of this    -->
-        <form on:submit|preventDefault={joinBoard}>
-            <input name="username" type="text" id="nickname-input" placeholder="Enter your nickname"
-                   bind:value={usernameInput}><br>
-            <input type="submit" value="Enter board">
-        </form>
-    </div>
+   <LoginRegister/>
 {:else}
     <div class="wrapper">
         <div class="table-and-user-story">
