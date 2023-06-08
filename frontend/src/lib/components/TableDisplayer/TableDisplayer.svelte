@@ -28,6 +28,8 @@
     let isInTable : boolean = false;
 
     accountStore.subscribe(value => {
+        if (value === null) return;
+
         joinTable(value.username, tableId)
             .then(() => isInTable = true)
             .catch(errorMessage => toast(errorMessage));
