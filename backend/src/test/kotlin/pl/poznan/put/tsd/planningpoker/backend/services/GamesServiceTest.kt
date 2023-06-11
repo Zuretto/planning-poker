@@ -66,11 +66,10 @@ class GamesServiceTest {
     @Test
     fun `Given card name when selecting the card then update player state`() = runTest {
         val uuid = service.createGame("username")
-        assertEquals(Card.NONE, service.games[uuid]?.players?.get("username")?.selectedCard)
-
+        assertEquals(Card.NONE, service.playerGameConnections.first { it.game.id == uuid && it.player.name == "username" }.selectedCard)
         service.selectCard(uuid, "username", Card.EIGHT)
 
-        assertEquals(Card.EIGHT, service.games[uuid]?.players?.get("username")?.selectedCard)
+        assertEquals(Card.EIGHT, service.playerGameConnections.first { it.game.id == uuid && it.player.name == "username" }.selectedCard)
     }
 
     @Test
