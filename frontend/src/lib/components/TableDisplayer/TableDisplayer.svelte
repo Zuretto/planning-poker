@@ -127,11 +127,13 @@
         }
     };
 
-    if ($accountStore !== null) {
-        joinTable($accountStore.username, tableId)
+    accountStore.subscribe(account => {
+        if (account == null) return;
+
+        joinTable(account.username, tableId)
             .then(() => isInTable = true)
-            .catch(errorMessage => toast(errorMessage));
-    }
+            .catch(errorMessage => toast(errorMessage))
+    })
 
 </script>
 
