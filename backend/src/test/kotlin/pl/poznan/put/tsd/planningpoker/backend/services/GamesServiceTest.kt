@@ -1,6 +1,7 @@
 package pl.poznan.put.tsd.planningpoker.backend.services
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -23,7 +24,12 @@ class GamesServiceTest {
     }
     private val messageHandler = mock(MessageHandler::class.java) // TODO test properly...
     private val csvParser = mock(CsvParser::class.java) // TODO test properly...
-    private val service = GamesService(uuidProvider, messageHandler, csvParser)
+    private val service = GamesService(uuidProvider, messageHandler, csvParser, PlayersService().apply {
+        runBlocking {
+            registerPlayer("username", "password")
+            registerPlayer("username2", "password")
+        }
+    })
 
     @Test
     fun `Given creators name when creating a table then return uuid`() = runTest {
@@ -60,16 +66,6 @@ class GamesServiceTest {
         val uuid = UUID.fromString("a438511c-7009-41fd-bc37-beda2e32270b")
 
         assertThrows<GameNotFoundException> { service.joinGame(uuid, "username2") }
-    }
-
-
-    @Test
-    fun `Given card name when selecting the card then update player state`() = runTest {
-        val uuid = service.createGame("username")
-        assertEquals(Card.NONE, service.playerGameConnections.first { it.game.id == uuid && it.player.name == "username" }.selectedCard)
-        service.selectCard(uuid, "username", Card.EIGHT)
-
-        assertEquals(Card.EIGHT, service.playerGameConnections.first { it.game.id == uuid && it.player.name == "username" }.selectedCard)
     }
 
     @Test

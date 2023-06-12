@@ -7,38 +7,26 @@
     import { accountStore } from "../../util/store";
     import CreateTable from "../CreateTable/CreateTable.svelte";
     import TablesHistory from "../TablesHistory/TablesHistory.svelte";
+    import LoginRegister from "../CreateTable/LoginRegister.svelte";
 
-    let usernameInput: string;
-    const loginSubmit = () => {
-        if (!usernameInput || !usernameInput.trim().length) {
-            return;
-        }
-        // TODO: call login API instead of this...
-        accountStore.set({
-            accessToken: '',
-            username: usernameInput,
-        });
+    const logout = () => {
+        accountStore.set(null);
     };
 </script>
 
 <section>
 
     {#if ($accountStore === null)}
-        <h1>
-            Welcome to planning poker!
-        </h1>
-        <!--  TODO: <LoginRegisterForm/> instead of this... -->
-        <form on:submit|preventDefault={loginSubmit}>
-            <input name="username" type="text" id="nickname-input" placeholder="Enter your nickname"
-                   bind:value={usernameInput}><br>
-            <input type="submit" value="Login">
-        </form>
+        <LoginRegister/>
     {:else}
+        <button class="standard-button" on:click={logout}>Log out</button>
+
         <h1> Dashboard </h1>
 
         <CreateTable/>
 
         <TablesHistory/>
+
     {/if}
 </section>
 
