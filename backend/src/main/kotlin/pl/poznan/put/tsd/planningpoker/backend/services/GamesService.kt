@@ -71,6 +71,8 @@ class GamesService(
             playerGameConnections[index].selectedCard = card
             game.areCardsVisible =
                 playerGameConnections.filter { it.game.id == game.id }.all { it.selectedCard != Card.NONE }
+            if (game.areCardsVisible)
+                game.calculateEstimation()
         }
         game.sendBroadcast()
     }
@@ -94,7 +96,6 @@ class GamesService(
     @Throws(GameNotFoundException::class)
     suspend fun nextRound(id: UUID) {
         getGameByIdOrThrow(id).run {
-            calculateEstimation()
             resetCards()
             round++
             if (round == userStories.size) userStories = userStories + UserStory(
@@ -163,9 +164,10 @@ class GamesService(
                 it.selectedCard = Card.QUESTION_MARK
         }
         areCardsVisible = true
+        calculateEstimation()
     }
 
-    private suspend fun Game.calculateEstimation() = mutex.withLock {
+    private suspend fun Game.calculateEstimation() {
         var sum = 0F
         var numberOfPlayers = 0F
         playerGameConnections.filter { it.game.id == id }.forEach {
