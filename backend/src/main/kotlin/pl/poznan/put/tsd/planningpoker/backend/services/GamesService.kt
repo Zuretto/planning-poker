@@ -39,7 +39,11 @@ class GamesService(
     suspend fun createGame(username: String): UUID {
         val player = playersService.getPlayerForLogin(username)
         val id = uuidProvider.generateUUID()
-        _games[id] = Game(id = id, creator = username, userStories = listOf())
+        _games[id] = Game(
+            id = id, creator = username, userStories = listOf(
+                UserStory(null, "", mutableListOf(), null)
+            )
+        )
         playerGameConnections.add(PlayerGameConnection(player, _games[id]!!))
         return id
     }
